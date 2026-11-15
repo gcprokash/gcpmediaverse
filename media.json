@@ -1,5 +1,89 @@
 [
   {
+    "Media_ID": "2ad4cab1e75bfc7f",
+    "Title": "Soni Soni",
+    "File_Name": "02-Soni Soni [By-DusIcTv] [1080p] [H.264] [Multi Audio] [GCP].mkv",
+    "Artist": "Udit Narayan, Jaspinder Narula, Udbhav, Manohar Shetty, Ishaan, Shweta Pandit, Sonali Bhatawdekar, Pritha Mazumdar, Shah Rukh Khan",
+    "Album": "Mohabbatein",
+    "Composer": "Jatin-Lalit",
+    "Genre": "Soundtrack",
+    "Language": "Hindi",
+    "Resolution": "1920x1080",
+    "Video_Codec": "h264",
+    "Video_Quality": "1080p",
+    "Audio_Count": 2,
+    "Hi_Res_Audio": 1,
+    "Subtitle_Count": 1,
+    "Cover": "covers/2ad4cab1e75bfc7f.svg",
+    "Cover_Source": "Generated",
+    "Drive_URL": "https://drive.google.com/file/d/1ln6OL3aRxVGmbQOeWtSkkepEu2NPTc4q/view",
+    "Download_URL": "https://drive.google.com/uc?export=download&id=1ln6OL3aRxVGmbQOeWtSkkepEu2NPTc4q",
+    "Video": [
+      {
+        "Video_ID": "2ad4cab1e75bfc7f-V1",
+        "Media_ID": "2ad4cab1e75bfc7f",
+        "File_Name": "02-Soni Soni [By-DusIcTv] [1080p] [H.264] [Multi Audio] [GCP].mkv",
+        "Codec": "h264",
+        "Profile": "High",
+        "Width": 1920,
+        "Height": 1080,
+        "Resolution": "1920x1080",
+        "Aspect_Ratio": "16:9",
+        "FPS": 24.0,
+        "Bitrate": "",
+        "Bit_Depth": "8",
+        "Pixel_Format": "yuv420p",
+        "HDR": "",
+        "Scan_Type": "Progressive",
+        "Default": "Yes"
+      }
+    ],
+    "Audio": [
+      {
+        "Audio_ID": "2ad4cab1e75bfc7f-A1",
+        "Media_ID": "2ad4cab1e75bfc7f",
+        "Track_No": 1,
+        "Title": "Hi-Res WAV 16-bit 44.1kHz By GCP",
+        "Artist": "",
+        "Codec": "pcm_s16le",
+        "Sample_Rate": "44100",
+        "Bit_Depth": 16,
+        "Channels": 2,
+        "Channel_Layout": "",
+        "Language": "hin",
+        "Hi_Res": "Yes",
+        "Default": "Yes"
+      },
+      {
+        "Audio_ID": "2ad4cab1e75bfc7f-A2",
+        "Media_ID": "2ad4cab1e75bfc7f",
+        "Track_No": 2,
+        "Title": "DTS-HD MA 5.1 @ 2106 Kbps - Original",
+        "Artist": "",
+        "Codec": "dts",
+        "Sample_Rate": "48000",
+        "Bit_Depth": "16",
+        "Channels": 6,
+        "Channel_Layout": "5.1(side)",
+        "Language": "hin",
+        "Hi_Res": "No",
+        "Default": "No"
+      }
+    ],
+    "Subtitle": [
+      {
+        "Subtitle_ID": "2ad4cab1e75bfc7f-S1",
+        "Media_ID": "2ad4cab1e75bfc7f",
+        "Track_No": 1,
+        "Codec": "dvd_subtitle",
+        "Language": "eng",
+        "Title": "",
+        "Default": "No",
+        "Forced": "No"
+      }
+    ]
+  },
+  {
     "Media_ID": "89fa7aa73fd90243",
     "Title": "Kanja Poovu Kannala",
     "File_Name": "Kanja Poovu Kannala [800p] [H.264] [Multi Audio] [17 Subtitle Tracks] [GCP].mkv",
