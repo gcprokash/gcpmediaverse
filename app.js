@@ -269,8 +269,11 @@ async function loadAllData() {
       const mediaKey = normalizeTitle(title);
       const cover = COVER_ASSETS.find(item => item.key === mediaKey) || null;
       const audio = AUDIO_ASSETS.find(item => item.key === mediaKey) || null;
-      const embeddedHiResInfo = value(c[12]);
-      const embeddedHiRes = !!embeddedHiResInfo && !/^(0|false|no|n\/a)$/i.test(embeddedHiResInfo);
+      const embeddedHiResCount = numberValue(c[12]);
+      const embeddedHiRes = embeddedHiResCount > 0;
+      const embeddedHiResInfo = embeddedHiRes
+        ? `${embeddedHiResCount} embedded Hi-Res track${embeddedHiResCount === 1 ? "" : "s"}`
+        : "";
       const externalHiRes = !!(audio && audio.downloadUrl);
       const rawId = value(c[0]);
       const safeId = /^[a-zA-Z0-9_-]+$/.test(rawId) ? rawId : "media-" + index;
