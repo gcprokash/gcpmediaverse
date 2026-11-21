@@ -875,11 +875,14 @@ window.showDetails = function(id, fromHistory = false) {
       <div>
         <p class="eyebrow">MEDIA DETAILS</p>
         <h2>${escapeHtml(x.title || "Untitled")}</h2>
-        <div class="artist">${escapeHtml(x.artist || "Unknown Artist")}</div>
+        <div class="artist-credits detail-artist-credits">
+          <div class="artist" id="detailArtistCredits">${escapeHtml(x.artist || "Unknown Artist")}</div>
+          <button type="button" class="credits-toggle" hidden aria-expanded="false" onclick="toggleArtistCredits(this)">Show All Credits</button>
+        </div>
 
         <div id="mediaPlayer" hidden style="margin-top:20px; margin-bottom:20px;"></div>
 
-        <section class="lyrics-viewer" aria-label="Lyrics and subtitle viewer">
+        <section class="lyrics-viewer" aria-label="Lyrics and subtitle viewer" hidden>
           <div class="lyrics-head"><div><p class="eyebrow">LYRICS & SUBTITLES</p><h3>Subtitle Viewer</h3></div>
             <label class="subtitle-upload">＋ Load SRT / LRC<input id="subtitleFileInput" type="file" accept=".srt,.lrc,.txt" hidden></label>
           </div>
