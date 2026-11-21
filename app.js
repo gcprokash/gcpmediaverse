@@ -469,7 +469,10 @@ function card(x) {
 
       <div class="card-body">
         <h3>${escapeHtml(x.title || "Untitled")}</h3>
-        <div class="artist">${escapeHtml(x.artist || "Unknown Artist")}</div>
+        <div class="artist-credits">
+          <div class="artist" id="detailArtistCredits">${escapeHtml(x.artist || "Unknown Artist")}</div>
+          <button type="button" class="credits-toggle" hidden aria-expanded="false" onclick="toggleArtistCredits(this)">Show All Credits</button>
+        </div>
         ${x.album ? `<div class="album">${escapeHtml(x.album)}</div>` : ""}
 
         <div class="meta">
@@ -798,6 +801,14 @@ window.showDetails = function(id, fromHistory = false) {
     </div>
   `;
 
+  const creditsText = detailsContent.querySelector("#detailArtistCredits");
+  const creditsToggle = detailsContent.querySelector(".credits-toggle");
+  if (creditsText && creditsToggle) {
+    window.requestAnimationFrame(() => {
+      creditsToggle.hidden = creditsText.scrollHeight <= creditsText.clientHeight + 2;
+    });
+  }
+
   detailsSection.hidden = false;
 
   /* ডিটেইলস ভিউতে বাকি সেকশন লুকিয়ে ফেলা হচ্ছে */
@@ -806,6 +817,17 @@ window.showDetails = function(id, fromHistory = false) {
   if (featuredSpotlight) featuredSpotlight.style.display = "none";
 
   detailsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
+window.toggleArtistCredits = function(button) {
+  const credits = button && button.parentElement
+    ? button.parentElement.querySelector(".artist")
+    : null;
+  if (!credits) return;
+
+  const expanded = credits.classList.toggle("credits-expanded");
+  button.setAttribute("aria-expanded", String(expanded));
+  button.textContent = expanded ? "Show Less" : "Show All Credits";
 };
 
 function returnToLibrary() {
