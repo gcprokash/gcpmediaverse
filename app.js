@@ -1168,6 +1168,8 @@ if (scrollTopBtn) {
   let isDraggingScrollButton = false;
   let dragStartY = 0;
   let dragStartTop = 0;
+  let latestPointerY = 0;
+  let dragFrame = 0;
   let suppressNextClick = false;
 
   scrollTopBtn.addEventListener("pointerdown", (event) => {
@@ -1175,6 +1177,7 @@ if (scrollTopBtn) {
     isDraggingScrollButton = true;
     suppressNextClick = false;
     dragStartY = event.clientY;
+    latestPointerY = event.clientY;
     dragStartTop = scrollTopBtn.getBoundingClientRect().top;
     scrollTopBtn.classList.add("is-dragging");
     scrollTopBtn.setPointerCapture(event.pointerId);
@@ -1184,24 +1187,38 @@ if (scrollTopBtn) {
   scrollTopBtn.addEventListener("pointermove", (event) => {
     if (!isDraggingScrollButton) return;
 
-    const buttonHeight = scrollTopBtn.offsetHeight || 44;
-    const topMargin = 96;
-    const bottomMargin = 24;
-    const availableTravel = Math.max(1, window.innerHeight - buttonHeight - topMargin - bottomMargin);
-    const nextTop = Math.min(
-      topMargin + availableTravel,
-      Math.max(topMargin, dragStartTop + (event.clientY - dragStartY))
-    );
-    const progress = (nextTop - topMargin) / availableTravel;
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-
+    latestPointerY = event.clientY;
     suppressNextClick = true;
-    window.scrollTo({ top: progress * maxScroll, behavior: "auto" });
+    if (dragFrame) return;
+
+    /* প্রতি ডিসপ্লে ফ্রেমে একবারই আপডেট—আঙুলের সঙ্গে তাৎক্ষণিক ও মসৃণ */
+    dragFrame = window.requestAnimationFrame(() => {
+      dragFrame = 0;
+      if (!isDraggingScrollButton) return;
+
+      const buttonHeight = scrollTopBtn.offsetHeight || 44;
+      const topMargin = 96;
+      const bottomMargin = 24;
+      const availableTravel = Math.max(1, window.innerHeight - buttonHeight - topMargin - bottomMargin);
+      const nextTop = Math.min(
+        topMargin + availableTravel,
+        Math.max(topMargin, dragStartTop + (latestPointerY - dragStartY))
+      );
+      const progress = (nextTop - topMargin) / availableTravel;
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
+      scrollTopBtn.style.top = `${nextTop}px`;
+      window.scrollTo({ top: progress * maxScroll, behavior: "instant" });
+    });
   });
 
   const finishScrollButtonDrag = () => {
     if (!isDraggingScrollButton) return;
     isDraggingScrollButton = false;
+    if (dragFrame) {
+      window.cancelAnimationFrame(dragFrame);
+      dragFrame = 0;
+    }
     scrollTopBtn.classList.remove("is-dragging");
     updateScrollButton();
   };
