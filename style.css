@@ -1235,3 +1235,115 @@ footer {
     min-height: 0;
   }
 }
+
+
+/* Details metadata layout: prevent long values from pushing content off-screen */
+.details-section,
+#detailsContent,
+.detail,
+.detail > div {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.detail-metadata {
+  width: 100%;
+  min-width: 0;
+  margin-top: 20px;
+}
+
+.metadata-group {
+  min-width: 0;
+  margin: 0 0 18px;
+}
+
+.metadata-heading {
+  margin: 0 0 9px;
+  color: var(--mv-accent, var(--cyan));
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.info-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.info {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.info b {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.detail-actions {
+  min-width: 0;
+}
+
+.detail-actions a,
+.detail-actions button {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+
+.detail-actions .copy-link-button.is-copied {
+  background: var(--green);
+  color: #04130b;
+  border-color: var(--green);
+}
+
+#mediaPlayer {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+}
+
+@media (max-width: 768px) {
+  .details-section {
+    padding-top: 24px;
+  }
+
+  .detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail > div {
+    width: 100%;
+  }
+
+  .detail-cover {
+    width: min(100%, 380px);
+  }
+}
+
+@media (max-width: 600px) {
+  .info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .metadata-heading {
+    font-size: 12px;
+  }
+
+  .detail-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail-actions a,
+  .detail-actions button {
+    width: 100%;
+  }
+}
