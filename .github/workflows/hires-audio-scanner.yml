@@ -222,6 +222,10 @@ jobs:
           # =====================================================
 
           def write_sheet(rows):
+              if not rows:
+                  print("No Hi-Res audio rows returned; preserving the existing HiResAudio sheet.")
+                  return
+
               ensure_sheet()
               headers = [
                   "Title",
