@@ -1164,7 +1164,59 @@ if (scrollTopBtn) {
   window.addEventListener("resize", updateScrollButton);
   window.addEventListener("load", updateScrollButton);
 
-  scrollTopBtn.addEventListener("click", () => {
+  /* Pointer drag: টেনে উপরে/নিচে নিলে পেজও একই অনুপাতে স্ক্রল হবে */
+  let isDraggingScrollButton = false;
+  let dragStartY = 0;
+  let dragStartTop = 0;
+  let suppressNextClick = false;
+
+  scrollTopBtn.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 && event.pointerType === "mouse") return;
+    isDraggingScrollButton = true;
+    suppressNextClick = false;
+    dragStartY = event.clientY;
+    dragStartTop = scrollTopBtn.getBoundingClientRect().top;
+    scrollTopBtn.classList.add("is-dragging");
+    scrollTopBtn.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+
+  scrollTopBtn.addEventListener("pointermove", (event) => {
+    if (!isDraggingScrollButton) return;
+
+    const buttonHeight = scrollTopBtn.offsetHeight || 44;
+    const topMargin = 96;
+    const bottomMargin = 24;
+    const availableTravel = Math.max(1, window.innerHeight - buttonHeight - topMargin - bottomMargin);
+    const nextTop = Math.min(
+      topMargin + availableTravel,
+      Math.max(topMargin, dragStartTop + (event.clientY - dragStartY))
+    );
+    const progress = (nextTop - topMargin) / availableTravel;
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
+    suppressNextClick = true;
+    window.scrollTo({ top: progress * maxScroll, behavior: "auto" });
+  });
+
+  const finishScrollButtonDrag = () => {
+    if (!isDraggingScrollButton) return;
+    isDraggingScrollButton = false;
+    scrollTopBtn.classList.remove("is-dragging");
+    updateScrollButton();
+  };
+
+  scrollTopBtn.addEventListener("pointerup", finishScrollButtonDrag);
+  scrollTopBtn.addEventListener("pointercancel", finishScrollButtonDrag);
+  scrollTopBtn.addEventListener("lostpointercapture", finishScrollButtonDrag);
+
+  scrollTopBtn.addEventListener("click", (event) => {
+    if (suppressNextClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressNextClick = false;
+      return;
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
