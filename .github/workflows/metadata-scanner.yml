@@ -2463,6 +2463,13 @@ jobs:
               rows
           ):
 
+              if not rows:
+                  print(
+                      f"{sheet_name}: scan returned no rows; "
+                      "preserving the existing sheet."
+                  )
+                  return
+
               ensure_sheet(
                   sheet_name
               )
