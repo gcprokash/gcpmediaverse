@@ -478,7 +478,7 @@ function card(x) {
       <div class="card-body">
         <h3>${escapeHtml(x.title || "Untitled")}</h3>
         <div class="artist-credits">
-          <div class="artist" id="detailArtistCredits">${escapeHtml(x.artist || "Unknown Artist")}</div>
+          <div class="artist">${escapeHtml(x.artist || "Unknown Artist")}</div>
           <button type="button" class="credits-toggle" hidden aria-expanded="false" onclick="toggleArtistCredits(this)">Show All Credits</button>
         </div>
         ${x.album ? `<div class="album">${escapeHtml(x.album)}</div>` : ""}
@@ -890,13 +890,52 @@ window.showDetails = function(id, fromHistory = false) {
     </div>
   `;
 
-  const creditsText = detailsContent.querySelector("#detailArtistCredits");
-  const creditsToggle = detailsContent.querySelector(".credits-toggle");
-  if (creditsText && creditsToggle) {
-    window.requestAnimationFrame(() => {
-      creditsToggle.hidden = creditsText.scrollHeight <= creditsText.clientHeight + 2;
+  const creditsText = detailsContent.querySelector(".detail-artist-credits .artist");
+  const creditsToggle = detailsContent.querySelector(".detail-artist-credits .credits-toggle");
+
+  /* Measure the unclamped text at the actual mobile/desktop width.
+     scrollHeight alone is unreliable for -webkit-line-clamp on some mobile browsers. */
+  const updateDetailCreditsToggle = () => {
+    if (!creditsText || !creditsToggle || !creditsText.isConnected) return;
+
+    const width = creditsText.getBoundingClientRect().width;
+    if (!width) return;
+
+    const measure = creditsText.cloneNode(true);
+    Object.assign(measure.style, {
+      position: "fixed",
+      left: "-10000px",
+      top: "0",
+      width: `${width}px`,
+      height: "auto",
+      maxHeight: "none",
+      minHeight: "0",
+      display: "block",
+      overflow: "visible",
+      visibility: "hidden",
+      pointerEvents: "none",
+      contain: "layout style"
     });
+    measure.classList.add("credits-measure");
+    document.body.appendChild(measure);
+
+    const lineHeight = parseFloat(getComputedStyle(creditsText).lineHeight) || 20;
+    const fullHeight = measure.getBoundingClientRect().height;
+    measure.remove();
+
+    const needsToggle = fullHeight > (lineHeight * 2) + 3;
+    if (!creditsText.classList.contains("credits-expanded")) {
+      creditsToggle.hidden = !needsToggle;
+    } else {
+      creditsToggle.hidden = false;
+    }
+  };
+
+  window.requestAnimationFrame(updateDetailCreditsToggle);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(updateDetailCreditsToggle);
   }
+  window.addEventListener("resize", updateDetailCreditsToggle, { passive: true });
 
   detailsSection.hidden = false;
 
@@ -917,6 +956,7 @@ window.toggleArtistCredits = function(button) {
   const expanded = credits.classList.toggle("credits-expanded");
   button.setAttribute("aria-expanded", String(expanded));
   button.textContent = expanded ? "Show Less" : "Show All Credits";
+  button.hidden = false;
 };
 
 function returnToLibrary() {
