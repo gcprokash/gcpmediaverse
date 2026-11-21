@@ -20,6 +20,8 @@
 
   <!-- STYLESHEET -->
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="themes/theme-base.css">
+  <link id="mediaverse-theme" rel="stylesheet" href="themes/deep-teal.css">
   <!-- Theme system: shared rules + independently editable palettes -->
   <link rel="stylesheet" href="themes/theme-base.css">
   <link id="mediaverse-theme" rel="stylesheet" href="themes/deep-teal.css">
@@ -140,7 +142,16 @@
        ========================================================= -->
   <button id="scrollTopBtn" class="scroll-top-btn" aria-label="Scroll to top" hidden>↑</button>
 
+  <!-- Fixed color-only theme selector -->
+  <div class="theme-dock">
+    <div id="themePicker" class="theme-picker" hidden aria-label="Choose color theme"></div>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Choose theme" aria-expanded="false">
+      <svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1.2a2 2 0 0 0 1.5-3.3 1.7 1.7 0 0 1 1.3-2.8H18a3 3 0 0 0 3-3c0-5-4-8.9-9-8.9Z"/><path d="M7.5 10h.01M10 6.8h.01M15 7.5h.01M17.5 11h.01"/></svg>
+    </button>
+  </div>
+
   <!-- APPLICATION SCRIPT -->
   <script src="app.js"></script>
+  <script src="theme-switcher.js"></script>
 </body>
 </html>
