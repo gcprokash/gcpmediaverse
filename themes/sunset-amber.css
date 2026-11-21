@@ -1,0 +1,14 @@
+/* SUNSET AMBER — warm high-contrast theme, intentionally distinct from Ocean Blue */
+:root{
+  --mv-bg:#24140B;
+  --mv-panel:#382012;
+  --mv-panel-2:#563019;
+  --mv-line:#80502B;
+  --mv-text:#FFF2DF;
+  --mv-muted:#E2C5A5;
+  --mv-accent:#FF9D24;
+  --mv-accent-text:#24140B;
+  --mv-highlight:#FFD166;
+  --mv-audio:#B85C38;
+  --mv-hero-overlay:rgba(36,20,11,.95);
+}
