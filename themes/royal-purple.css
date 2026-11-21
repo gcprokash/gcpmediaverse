@@ -1,2 +1,14 @@
-/* ROYAL PURPLE — elegant purple theme */
-:root{--mv-bg:#24113F;--mv-panel:#321A52;--mv-panel-2:#44236B;--mv-line:#68468B;--mv-text:#F5EFFF;--mv-muted:#D0BFE5;--mv-accent:#B66BFF;--mv-accent-text:#1C0B30;--mv-highlight:#E8C98F;--mv-audio:#8B3E75;--mv-hero-overlay:rgba(36,17,63,.95);}
+/* SUNSET AMBER — warm high-contrast theme, intentionally distinct from Ocean Blue */
+:root{
+  --mv-bg:#24140B;
+  --mv-panel:#382012;
+  --mv-panel-2:#563019;
+  --mv-line:#80502B;
+  --mv-text:#FFF2DF;
+  --mv-muted:#E2C5A5;
+  --mv-accent:#FF9D24;
+  --mv-accent-text:#24140B;
+  --mv-highlight:#FFD166;
+  --mv-audio:#B85C38;
+  --mv-hero-overlay:rgba(36,20,11,.95);
+}

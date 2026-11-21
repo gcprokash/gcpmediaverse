@@ -6,7 +6,7 @@
     { id: "pure-white", file: "themes/pure-white.css", color: "#FFFFFF" },
     { id: "amoled-black", file: "themes/amoled-black.css", color: "#080808" },
     { id: "ocean-blue", file: "themes/ocean-blue.css", color: "#102A56" },
-    { id: "royal-purple", file: "themes/royal-purple.css", color: "#24113F" }
+    { id: "sunset-amber", file: "themes/sunset-amber.css", color: "#24140B" }
   ];
   const STORAGE_KEY = "mediaverse-theme";
   const stylesheet = document.getElementById("mediaverse-theme");
