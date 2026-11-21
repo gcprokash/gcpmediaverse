@@ -562,41 +562,6 @@ function renderArtists() {
     `).join("")}</div>`;
 }
 
-function parseSubtitleText(raw, extension) {
-  if (extension === "lrc") {
-    return raw.split(/\r?\n/).map(line => {
-      const match = line.match(/^\s*\[(\d{1,2}):(\d{2}(?:\.\d+)?)\]\s*(.*)$/);
-      return match ? { time: match[1] + ":" + match[2], text: match[3] } : null;
-    }).filter(item => item && item.text);
-  }
-  return raw.replace(/\r/g, "").split(/\n\s*\n/).map(block => {
-    const lines = block.split("\n").map(line => line.trim()).filter(Boolean);
-    const timeIndex = lines.findIndex(line => line.includes("-->"));
-    if (timeIndex < 0) return null;
-    return { time: lines[timeIndex].split("-->")[0].trim(), text: lines.slice(timeIndex + 1).join(" ") };
-  }).filter(item => item && item.text);
-}
-
-function setupSubtitleViewer() {
-  const input = detailsContent && detailsContent.querySelector("#subtitleFileInput");
-  const viewer = detailsContent && detailsContent.querySelector("#subtitleViewer");
-  if (!input || !viewer) return;
-  input.addEventListener("change", () => {
-    const file = input.files && input.files[0];
-    if (!file) return;
-    const ext = file.name.split(".").pop().toLowerCase();
-    const reader = new FileReader();
-    reader.onload = () => {
-      const entries = parseSubtitleText(String(reader.result || ""), ext);
-      viewer.innerHTML = entries.length ? entries.map(entry =>
-        `<p class="subtitle-line"><time>${escapeHtml(entry.time)}</time><span>${escapeHtml(entry.text)}</span></p>`
-      ).join("") : "No readable subtitle lines found.";
-    };
-    reader.onerror = () => { viewer.textContent = "Could not read this file."; };
-    reader.readAsText(file);
-  });
-}
-
 function render() {
   if (!grid) return;
   const q = search ? search.value.trim().toLowerCase() : "";
@@ -882,13 +847,6 @@ window.showDetails = function(id, fromHistory = false) {
 
         <div id="mediaPlayer" hidden style="margin-top:20px; margin-bottom:20px;"></div>
 
-        <section class="lyrics-viewer" aria-label="Lyrics and subtitle viewer" hidden>
-          <div class="lyrics-head"><div><p class="eyebrow">LYRICS & SUBTITLES</p><h3>Subtitle Viewer</h3></div>
-            <label class="subtitle-upload">＋ Load SRT / LRC<input id="subtitleFileInput" type="file" accept=".srt,.lrc,.txt" hidden></label>
-          </div>
-          <p class="lyrics-hint">নিজের SRT বা LRC ফাইল নির্বাচন করলে এখানে লিরিক্স/সাবটাইটেল দেখা যাবে। ফাইলটি শুধু এই ব্রাউজার সেশনে পড়া হবে।</p>
-          <div id="subtitleViewer" class="subtitle-viewer" aria-live="polite">No subtitle file loaded.</div>
-        </section>
 
         <div class="detail-metadata">
           <section class="metadata-group" aria-label="General information">
@@ -931,8 +889,6 @@ window.showDetails = function(id, fromHistory = false) {
       </div>
     </div>
   `;
-
-  setupSubtitleViewer();
 
   const creditsText = detailsContent.querySelector("#detailArtistCredits");
   const creditsToggle = detailsContent.querySelector(".credits-toggle");
