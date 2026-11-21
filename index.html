@@ -72,6 +72,10 @@
     <!-- 3. LATEST RELEASE SPOTLIGHT -->
     <section id="featuredSpotlight" class="featured-section" hidden></section>
 
+    <!-- PREMIUM DISCOVERY SECTIONS -->
+    <section id="statisticsSection" class="insights-section" aria-label="MediaVerse statistics"></section>
+    <section id="artistsSection" class="artists-section" aria-label="Browse artists"></section>
+
     <!-- 4. MEDIA LIBRARY & GRID -->
     <section id="library" class="library">
       <div class="section-head">
@@ -90,6 +94,16 @@
         </div>
       </div>
 
+      <div class="advanced-controls" aria-label="Advanced search and sorting">
+        <label>Artist <select id="artistFilter"><option value="">All Artists</option></select></label>
+        <label>Genre <select id="genreFilter"><option value="">All Genres</option></select></label>
+        <label>Language <select id="languageFilter"><option value="">All Languages</option></select></label>
+        <label>Sort <select id="sortSelect">
+          <option value="default">Default order</option><option value="title-asc">Title A–Z</option>
+          <option value="title-desc">Title Z–A</option><option value="artist-asc">Artist A–Z</option>
+          <option value="newest">Newest first</option><option value="oldest">Oldest first</option>
+        </select></label>
+      </div>
       <div id="mediaGrid" class="media-grid"></div>
       <p id="emptyState" class="empty" hidden>No media found.</p>
 

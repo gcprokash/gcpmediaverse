@@ -50,6 +50,12 @@ const scrollTopBtn = document.getElementById("scrollTopBtn");
 const closeDetailsBtn = document.getElementById("closeDetails");
 const heroSection = document.querySelector(".hero");
 const featuredSpotlight = document.getElementById("featuredSpotlight");
+const statisticsSection = document.getElementById("statisticsSection");
+const artistsSection = document.getElementById("artistsSection");
+const artistFilter = document.getElementById("artistFilter");
+const genreFilter = document.getElementById("genreFilter");
+const languageFilter = document.getElementById("languageFilter");
+const sortSelect = document.getElementById("sortSelect");
 const librarySection = document.getElementById("library");
 const detailsSection = document.getElementById("details");
 const detailsContent = document.getElementById("detailsContent");
@@ -283,6 +289,9 @@ async function loadAllData() {
     }
 
     renderFeaturedSpotlight();
+    renderStatistics();
+    renderArtists();
+    populateAdvancedFilters();
     render();
 
     /* সরাসরি ইউআরএল হ্যাশ থাকলে ওপেন হবে */
@@ -504,6 +513,90 @@ function card(x) {
   `;
 }
 
+function uniqueValues(key) {
+  return [...new Set(MEDIA.map(item => String(item[key] || "").trim()).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function populateAdvancedFilters() {
+  [[artistFilter, "artist", "All Artists"], [genreFilter, "genre", "All Genres"], [languageFilter, "language", "All Languages"]]
+    .forEach(([select, key, label]) => {
+      if (!select) return;
+      const current = select.value;
+      select.innerHTML = `<option value="">${label}</option>` +
+        uniqueValues(key).map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("");
+      select.value = current;
+    });
+}
+
+function renderStatistics() {
+  if (!statisticsSection) return;
+  const artists = new Set(MEDIA.flatMap(item => String(item.artist || "").split(/[,;&]/).map(v => v.trim()).filter(Boolean)));
+  const languages = new Set(MEDIA.map(item => item.language).filter(Boolean));
+  const hiRes = MEDIA.filter(item => item.hiRes).length;
+  const subtitles = MEDIA.filter(item => item.subtitleCount > 0).length;
+  const stats = [
+    ["Total Media", MEDIA.length, "Curated library"],
+    ["Artists", artists.size, "Across the archive"],
+    ["Hi-Res Audio", hiRes, "Lossless collection"],
+    ["With Subtitles", subtitles, "Subtitle-ready titles"],
+    ["Languages", languages.size, "Multilingual content"]
+  ];
+  statisticsSection.innerHTML = `
+    <div class="section-head"><div><p class="eyebrow">THE ARCHIVE AT A GLANCE</p><h2>MediaVerse Insights</h2></div></div>
+    <div class="stats-grid">${stats.map(([label, count, note]) => `
+      <article class="stat-card"><span>${escapeHtml(label)}</span><strong>${count.toLocaleString()}</strong><small>${escapeHtml(note)}</small></article>
+    `).join("")}</div>`;
+}
+
+function renderArtists() {
+  if (!artistsSection) return;
+  const counts = new Map();
+  MEDIA.forEach(item => String(item.artist || "").split(/[,;&]/).map(v => v.trim()).filter(Boolean)
+    .forEach(name => counts.set(name, (counts.get(name) || 0) + 1)));
+  const artists = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
+  artistsSection.innerHTML = `
+    <div class="section-head"><div><p class="eyebrow">MEET THE CREATORS</p><h2>Artists</h2></div><span class="section-note">Explore the archive by artist</span></div>
+    <div class="artist-grid">${artists.map(([name, count]) => `
+      <button class="artist-tile" type="button" data-artist="${escapeHtml(name)}"><span class="artist-avatar">${escapeHtml(name.slice(0,1).toUpperCase())}</span><b>${escapeHtml(name)}</b><small>${count} ${count === 1 ? "title" : "titles"}</small></button>
+    `).join("")}</div>`;
+}
+
+function parseSubtitleText(raw, extension) {
+  if (extension === "lrc") {
+    return raw.split(/\r?\n/).map(line => {
+      const match = line.match(/^\s*\[(\d{1,2}):(\d{2}(?:\.\d+)?)\]\s*(.*)$/);
+      return match ? { time: match[1] + ":" + match[2], text: match[3] } : null;
+    }).filter(item => item && item.text);
+  }
+  return raw.replace(/\r/g, "").split(/\n\s*\n/).map(block => {
+    const lines = block.split("\n").map(line => line.trim()).filter(Boolean);
+    const timeIndex = lines.findIndex(line => line.includes("-->"));
+    if (timeIndex < 0) return null;
+    return { time: lines[timeIndex].split("-->")[0].trim(), text: lines.slice(timeIndex + 1).join(" ") };
+  }).filter(item => item && item.text);
+}
+
+function setupSubtitleViewer() {
+  const input = detailsContent && detailsContent.querySelector("#subtitleFileInput");
+  const viewer = detailsContent && detailsContent.querySelector("#subtitleViewer");
+  if (!input || !viewer) return;
+  input.addEventListener("change", () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    const ext = file.name.split(".").pop().toLowerCase();
+    const reader = new FileReader();
+    reader.onload = () => {
+      const entries = parseSubtitleText(String(reader.result || ""), ext);
+      viewer.innerHTML = entries.length ? entries.map(entry =>
+        `<p class="subtitle-line"><time>${escapeHtml(entry.time)}</time><span>${escapeHtml(entry.text)}</span></p>`
+      ).join("") : "No readable subtitle lines found.";
+    };
+    reader.onerror = () => { viewer.textContent = "Could not read this file."; };
+    reader.readAsText(file);
+  });
+}
+
 function render() {
   if (!grid) return;
   const q = search ? search.value.trim().toLowerCase() : "";
@@ -516,8 +609,23 @@ function render() {
       item.videoCodec, item.resolution
     ].join(" ").toLowerCase();
 
-    return filterMatch && searchable.includes(q);
+    return filterMatch && searchable.includes(q)
+      && (!artistFilter || !artistFilter.value || item.artist === artistFilter.value)
+      && (!genreFilter || !genreFilter.value || item.genre === genreFilter.value)
+      && (!languageFilter || !languageFilter.value || item.language === languageFilter.value);
   });
+
+  const sortMode = sortSelect ? sortSelect.value : "default";
+  if (sortMode !== "default") {
+    data.sort((a, b) => {
+      if (sortMode === "title-asc") return String(a.title).localeCompare(String(b.title));
+      if (sortMode === "title-desc") return String(b.title).localeCompare(String(a.title));
+      if (sortMode === "artist-asc") return String(a.artist).localeCompare(String(b.artist));
+      if (sortMode === "newest") return MEDIA.indexOf(b) - MEDIA.indexOf(a);
+      if (sortMode === "oldest") return MEDIA.indexOf(a) - MEDIA.indexOf(b);
+      return 0;
+    });
+  }
 
   const totalPages = Math.max(1, Math.ceil(data.length / ITEMS_PER_PAGE));
   currentPage = Math.min(Math.max(1, currentPage), totalPages);
@@ -771,6 +879,14 @@ window.showDetails = function(id, fromHistory = false) {
 
         <div id="mediaPlayer" hidden style="margin-top:20px; margin-bottom:20px;"></div>
 
+        <section class="lyrics-viewer" aria-label="Lyrics and subtitle viewer">
+          <div class="lyrics-head"><div><p class="eyebrow">LYRICS & SUBTITLES</p><h3>Subtitle Viewer</h3></div>
+            <label class="subtitle-upload">＋ Load SRT / LRC<input id="subtitleFileInput" type="file" accept=".srt,.lrc,.txt" hidden></label>
+          </div>
+          <p class="lyrics-hint">নিজের SRT বা LRC ফাইল নির্বাচন করলে এখানে লিরিক্স/সাবটাইটেল দেখা যাবে। ফাইলটি শুধু এই ব্রাউজার সেশনে পড়া হবে।</p>
+          <div id="subtitleViewer" class="subtitle-viewer" aria-live="polite">No subtitle file loaded.</div>
+        </section>
+
         <div class="detail-metadata">
           <section class="metadata-group" aria-label="General information">
             <h3 class="metadata-heading">General Information</h3>
@@ -812,6 +928,8 @@ window.showDetails = function(id, fromHistory = false) {
       </div>
     </div>
   `;
+
+  setupSubtitleViewer();
 
   const creditsText = detailsContent.querySelector("#detailArtistCredits");
   const creditsToggle = detailsContent.querySelector(".credits-toggle");
@@ -943,6 +1061,22 @@ if (search) {
 
 if (searchBtn && search) {
   searchBtn.addEventListener("click", () => search.focus());
+}
+
+[artistFilter, genreFilter, languageFilter, sortSelect].forEach(control => {
+  if (!control) return;
+  control.addEventListener("change", () => { currentPage = 1; render(); });
+});
+
+if (artistsSection) {
+  artistsSection.addEventListener("click", event => {
+    const tile = event.target.closest("[data-artist]");
+    if (!tile || !artistFilter) return;
+    artistFilter.value = tile.dataset.artist;
+    currentPage = 1;
+    render();
+    librarySection.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 }
 
 /* ডিটেইলস থেকে লাইব্রেরিতে ফেরার নির্ভরযোগ্য নেভিগেশন */
