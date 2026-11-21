@@ -713,7 +713,7 @@ window.showDetails = function(id, fromHistory = false) {
   if (!x) return;
 
   if (!fromHistory) {
-    history.pushState({ mediaId: String(id) }, "", "#media/" + encodeURIComponent(String(id)));
+    history.pushState({ mediaverseDetails: true, mediaId: String(id) }, "", "#media/" + encodeURIComponent(String(id)));
   }
 
   /* পেজ টাইটেল গানটির নামে আপডেট করা হচ্ছে */
@@ -756,24 +756,36 @@ window.showDetails = function(id, fromHistory = false) {
 
         <div id="mediaPlayer" hidden style="margin-top:20px; margin-bottom:20px;"></div>
 
-        <div class="info-grid">
-          <div class="info"><small>Album</small><b>${escapeHtml(x.album || "—")}</b></div>
-          <div class="info"><small>Composer</small><b>${escapeHtml(x.composer || "—")}</b></div>
-          <div class="info"><small>Genre</small><b>${escapeHtml(x.genre || "—")}</b></div>
-          <div class="info"><small>Language</small><b>${escapeHtml(x.language || "—")}</b></div>
-          <div class="info"><small>Resolution</small><b>${escapeHtml(x.resolution || "—")}</b></div>
-          <div class="info"><small>Video Codec</small><b>${escapeHtml(x.videoCodec || "—")}</b></div>
-          <div class="info"><small>Quality</small><b>${escapeHtml(x.videoQuality || "—")}</b></div>
-          <div class="info"><small>Audio</small><b>${x.audioCount} tracks</b></div>
-          <div class="info">
-            <small>Hi-Res Audio</small>
-            <b>${x.audioUrl ? escapeHtml(x.audioFormat || "Available") : (x.embeddedHiRes ? escapeHtml(x.embeddedHiResInfo || "Embedded Hi-Res") : "Not available")}</b>
-          </div>
-          <div class="info"><small>Subtitles</small><b>${x.subtitleCount}</b></div>
-          <div class="info"><small>Media ID</small><b>${escapeHtml(x.id)}</b></div>
-          <div class="info"><small>File Name</small><b>${escapeHtml(x.fileName || "—")}</b></div>
-          <div class="info"><small>Cover</small><b>${urls.length ? "Available" : "Not available"}</b></div>
-          ${x.audioFileName ? `<div class="info"><small>Hi-Res File</small><b>${escapeHtml(x.audioFileName)}</b></div>` : ""}
+        <div class="detail-metadata">
+          <section class="metadata-group" aria-label="General information">
+            <h3 class="metadata-heading">General Information</h3>
+            <div class="info-grid">
+              <div class="info"><small>Album</small><b>${escapeHtml(x.album || "—")}</b></div>
+              <div class="info"><small>Composer</small><b>${escapeHtml(x.composer || "—")}</b></div>
+              <div class="info"><small>Genre</small><b>${escapeHtml(x.genre || "—")}</b></div>
+              <div class="info"><small>Language</small><b>${escapeHtml(x.language || "—")}</b></div>
+            </div>
+          </section>
+          <section class="metadata-group" aria-label="Technical information">
+            <h3 class="metadata-heading">Technical Information</h3>
+            <div class="info-grid">
+              <div class="info"><small>Resolution</small><b>${escapeHtml(x.resolution || "—")}</b></div>
+              <div class="info"><small>Video Codec</small><b>${escapeHtml(x.videoCodec || "—")}</b></div>
+              <div class="info"><small>Quality</small><b>${escapeHtml(x.videoQuality || "—")}</b></div>
+              <div class="info"><small>Audio</small><b>${x.audioCount} tracks</b></div>
+              <div class="info"><small>Hi-Res Audio</small><b>${x.audioUrl ? escapeHtml(x.audioFormat || "Available") : (x.embeddedHiRes ? escapeHtml(x.embeddedHiResInfo || "Embedded Hi-Res") : "Not available")}</b></div>
+              <div class="info"><small>Subtitles</small><b>${x.subtitleCount}</b></div>
+            </div>
+          </section>
+          <section class="metadata-group" aria-label="File information">
+            <h3 class="metadata-heading">File Information</h3>
+            <div class="info-grid">
+              <div class="info"><small>Media ID</small><b>${escapeHtml(x.id)}</b></div>
+              <div class="info"><small>File Name</small><b>${escapeHtml(x.fileName || "—")}</b></div>
+              <div class="info"><small>Cover</small><b>${urls.length ? "Available" : "Not available"}</b></div>
+              ${x.audioFileName ? `<div class="info"><small>Hi-Res File</small><b>${escapeHtml(x.audioFileName)}</b></div>` : ""}
+            </div>
+          </section>
         </div>
 
         <div class="detail-actions">
@@ -812,40 +824,62 @@ function returnToLibrary() {
 }
 
 /* স্মার্ট শেয়ার ও কপি লিঙ্ক ফাংশন (Web Share API সহ) */
-window.shareOrCopyMediaLink = function(id, btn) {
+window.shareOrCopyMediaLink = async function(id, btn) {
   const x = MEDIA.find(item => String(item.id) === String(id));
   const fullUrl = window.location.origin + window.location.pathname + "#media/" + encodeURIComponent(id);
 
   if (navigator.share) {
-    navigator.share({
-      title: (x ? x.title : "MediaVerse"),
-      text: `Stream "${x ? x.title : 'Media'}" on MediaVerse in High Quality!`,
-      url: fullUrl
-    }).catch(() => {
-      copyToClipboardFallback(fullUrl, btn);
-    });
-  } else {
-    copyToClipboardFallback(fullUrl, btn);
+    try {
+      await navigator.share({
+        title: x ? x.title : "MediaVerse",
+        text: `Stream "${x ? x.title : "Media"}" on MediaVerse in High Quality!`,
+        url: fullUrl
+      });
+      return;
+    } catch (error) {
+      if (error && error.name === "AbortError") return;
+    }
   }
+
+  await copyToClipboardFallback(fullUrl, btn);
 };
 
-function copyToClipboardFallback(fullUrl, btn) {
-  navigator.clipboard.writeText(fullUrl).then(() => {
+async function copyToClipboardFallback(fullUrl, btn) {
+  let copied = false;
+
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(fullUrl);
+      copied = true;
+    } catch (error) {}
+  }
+
+  if (!copied) {
+    const field = document.createElement("textarea");
+    field.value = fullUrl;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.opacity = "0";
+    field.style.pointerEvents = "none";
+    document.body.appendChild(field);
+    field.select();
+    try {
+      copied = document.execCommand("copy");
+    } catch (error) {}
+    field.remove();
+  }
+
+  if (copied && btn) {
     const originalText = btn.innerHTML;
     btn.innerHTML = "✓ Copied!";
-    btn.style.background = "var(--green)";
-    btn.style.color = "#04130b";
-    btn.style.borderColor = "var(--green)";
-
-    setTimeout(() => {
+    btn.classList.add("is-copied");
+    window.setTimeout(() => {
       btn.innerHTML = originalText;
-      btn.style.background = "";
-      btn.style.color = "";
-      btn.style.borderColor = "";
+      btn.classList.remove("is-copied");
     }, 2000);
-  }).catch(() => {
-    prompt("লিংকটি কপি করে নিন:", fullUrl);
-  });
+  } else if (!copied) {
+    window.prompt("লিংকটি কপি করে নিন:", fullUrl);
+  }
 }
 
 
@@ -877,15 +911,21 @@ if (searchBtn && search) {
   searchBtn.addEventListener("click", () => search.focus());
 }
 
-/* ডিটেইলস ব্যাক বাটন */
+/* ডিটেইলস থেকে লাইব্রেরিতে ফেরার নির্ভরযোগ্য নেভিগেশন */
+function navigateBackToLibrary() {
+  if (location.hash.startsWith("#media/") && history.state && history.state.mediaverseDetails) {
+    history.back();
+    return;
+  }
+
+  if (location.hash.startsWith("#media/")) {
+    history.replaceState(history.state, "", location.pathname + location.search);
+  }
+  returnToLibrary();
+}
+
 if (closeDetailsBtn) {
-  closeDetailsBtn.addEventListener("click", () => {
-    if (location.hash.startsWith("#media/")) {
-      history.back();
-    } else {
-      returnToLibrary();
-    }
-  });
+  closeDetailsBtn.addEventListener("click", navigateBackToLibrary);
 }
 
 /* অ্যান্ড্রয়েড/ব্রাউজার ব্যাক ও ফরোয়ার্ড বাটন হ্যান্ডলার */
@@ -905,11 +945,7 @@ document.addEventListener("keydown", (e) => {
     if (playerBox && !playerBox.hidden && playerBox.innerHTML.trim() !== "") {
       closeMediaPlayer();
     } else if (detailsSection && !detailsSection.hidden) {
-      if (location.hash.startsWith("#media/")) {
-        history.back();
-      } else {
-        returnToLibrary();
-      }
+      navigateBackToLibrary();
     }
   }
 });
