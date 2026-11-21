@@ -101,18 +101,31 @@ function escapeJs(val) {
 
 function getDriveFileId(url) {
   if (!url) return "";
-  const text = String(url).trim();
+  let parsed;
+  try {
+    parsed = new URL(String(url).trim());
+  } catch (error) {
+    return "";
+  }
 
-  let match = text.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (match && match[1]) return match[1];
+  const allowedHosts = new Set([
+    "drive.google.com",
+    "docs.google.com",
+    "drive.usercontent.google.com"
+  ]);
+  if (parsed.protocol !== "https:" || !allowedHosts.has(parsed.hostname.toLowerCase())) {
+    return "";
+  }
 
-  match = text.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (match && match[1]) return match[1];
+  const pathMatch = parsed.pathname.match(/\/(?:file\/)?d\/([a-zA-Z0-9_-]+)/);
+  if (pathMatch && pathMatch[1]) return pathMatch[1];
 
-  match = text.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (match && match[1]) return match[1];
+  const queryId = parsed.searchParams.get("id");
+  return queryId && /^[a-zA-Z0-9_-]+$/.test(queryId) ? queryId : "";
+}
 
-  return "";
+function safeDriveUrl(url) {
+  return getDriveFileId(url) ? String(url).trim() : "";
 }
 
 function getDriveImageUrls(url) {
@@ -189,18 +202,33 @@ async function loadAllData() {
   showLoading();
 
   try {
-    const [mediaRows, coverRows, audioRows] = await Promise.all([
+    const [mediaResult, coverResult, audioResult] = await Promise.allSettled([
       loadGoogleSheet(MAIN_SHEET_ID, MAIN_SHEET_NAME),
       loadGoogleSheet(ASSETS_SHEET_ID, COVERS_SHEET_NAME),
       loadGoogleSheet(ASSETS_SHEET_ID, HIRES_AUDIO_SHEET_NAME)
     ]);
 
+    if (mediaResult.status === "rejected") {
+      throw mediaResult.reason || new Error("Main media sheet could not be loaded");
+    }
+
+    const mediaRows = mediaResult.value || [];
+    const coverRows = coverResult.status === "fulfilled" ? coverResult.value || [] : [];
+    const audioRows = audioResult.status === "fulfilled" ? audioResult.value || [] : [];
+
+    if (coverResult.status === "rejected") {
+      console.warn("Optional Covers sheet unavailable:", coverResult.reason);
+    }
+    if (audioResult.status === "rejected") {
+      console.warn("Optional HiResAudio sheet unavailable:", audioResult.reason);
+    }
+
     /* ১. কভার অ্যাসেট */
     COVER_ASSETS = coverRows.map(row => {
       const title = value(row.c?.[0]);
       const fileName = value(row.c?.[1]);
-      const driveUrl = value(row.c?.[2]);
-      const downloadUrl = value(row.c?.[3]);
+      const driveUrl = safeDriveUrl(value(row.c?.[2]));
+      const downloadUrl = safeDriveUrl(value(row.c?.[3]));
       const imageUrls = getDriveImageUrls(driveUrl || downloadUrl);
 
       return {
@@ -219,8 +247,8 @@ async function loadAllData() {
       const title = value(row.c?.[0]);
       const fileName = value(row.c?.[1]);
       const format = value(row.c?.[2]);
-      const driveUrl = value(row.c?.[3]);
-      const downloadUrl = value(row.c?.[4]);
+      const driveUrl = safeDriveUrl(value(row.c?.[3]));
+      const downloadUrl = safeDriveUrl(value(row.c?.[4]));
 
       return {
         title,
@@ -241,11 +269,14 @@ async function loadAllData() {
       const mediaKey = normalizeTitle(title);
       const cover = COVER_ASSETS.find(item => item.key === mediaKey) || null;
       const audio = AUDIO_ASSETS.find(item => item.key === mediaKey) || null;
-      const embeddedHiRes = numberValue(c[12]) > 0;
+      const embeddedHiResInfo = value(c[12]);
+      const embeddedHiRes = !!embeddedHiResInfo && !/^(0|false|no|n\/a)$/i.test(embeddedHiResInfo);
       const externalHiRes = !!(audio && audio.downloadUrl);
+      const rawId = value(c[0]);
+      const safeId = /^[a-zA-Z0-9_-]+$/.test(rawId) ? rawId : "media-" + index;
 
       return {
-        id: value(c[0]) || "media-" + index,
+        id: safeId,
         title,
         fileName: value(c[2]),
         artist: value(c[3]),
@@ -258,7 +289,7 @@ async function loadAllData() {
         videoQuality: value(c[10]),
         audioCount: numberValue(c[11]),
         embeddedHiRes,
-        embeddedHiResInfo: value(c[12]),
+        embeddedHiResInfo,
         subtitleCount: numberValue(c[13]),
         duration: "",
         cover: cover ? cover.imageUrl : "",
@@ -267,8 +298,8 @@ async function loadAllData() {
         coverDownloadUrl: cover ? cover.downloadUrl : "",
         coverFileName: cover ? cover.fileName : "",
         coverSource: value(c[15]),
-        videoUrl: value(c[16]),
-        downloadUrl: value(c[17]),
+        videoUrl: safeDriveUrl(value(c[16])),
+        downloadUrl: safeDriveUrl(value(c[17])),
         hiRes: embeddedHiRes || externalHiRes,
         audioUrl: audio ? audio.downloadUrl : "",
         audioDriveUrl: audio ? audio.driveUrl : "",
