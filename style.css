@@ -1487,6 +1487,10 @@ footer {
   margin-top: 5px;
 }
 
+.detail .detail-artist-credits {
+  margin-bottom: 14px;
+}
+
 .detail .artist-credits .artist {
   display: -webkit-box;
   -webkit-box-orient: vertical;
