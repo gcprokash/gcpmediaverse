@@ -2474,18 +2474,6 @@ jobs:
                   sheet_name
               )
 
-              (
-                  sheets_service
-                  .spreadsheets()
-                  .values()
-                  .clear(
-                      spreadsheetId=SPREADSHEET_ID,
-                      range=f"{sheet_name}!A:ZZ",
-                      body={}
-                  )
-                  .execute()
-              )
-
               prepared_rows = []
 
               for row in rows:
@@ -2524,6 +2512,25 @@ jobs:
                   prepared_rows
               )
 
+              # Validate the complete payload before touching the live range.
+              if any(len(row) != len(headers) for row in prepared_rows):
+                  raise RuntimeError(f"{sheet_name}: row width does not match schema")
+              id_header = {
+                  "Media": "Media_ID", "Files": "File_ID", "Video": "Video_ID",
+                  "Audio": "Audio_ID", "Subtitle": "Subtitle_ID", "Covers": "Cover_ID"
+              }.get(sheet_name)
+              if id_header:
+                  id_index = headers.index(id_header)
+                  ids = [str(row[id_index]).strip() for row in prepared_rows if str(row[id_index]).strip()]
+                  if len(ids) != len(set(ids)):
+                      raise RuntimeError(f"{sheet_name}: duplicate {id_header}; preserving existing sheet")
+              if sheet_name != "Media":
+                  media_index = headers.index("Media_ID")
+                  known_media = {str(row.get("Media_ID", "")).strip() for row in media_rows}
+                  unknown = sorted({str(row[media_index]).strip() for row in prepared_rows if str(row[media_index]).strip()} - known_media)
+                  if unknown:
+                      raise RuntimeError(f"{sheet_name}: unknown Media_ID references: {unknown[:10]}")
+
               (
                   sheets_service
                   .spreadsheets()
@@ -2546,6 +2553,16 @@ jobs:
 
                   )
                   .execute()
+              )
+
+              # Clear stale trailing rows only after the new payload was written.
+              clear_from = len(values) + 1
+              (
+                  sheets_service.spreadsheets().values().clear(
+                      spreadsheetId=SPREADSHEET_ID,
+                      range=f"{sheet_name}!A{clear_from}:ZZ",
+                      body={}
+                  ).execute()
               )
 
               print(
