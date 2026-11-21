@@ -222,6 +222,10 @@ jobs:
           # =====================================================
 
           def write_sheet(rows):
+              if not rows:
+                  print("No cover rows returned; preserving the existing Covers sheet.")
+                  return
+
               ensure_sheet()
               headers = [
                   "Title",

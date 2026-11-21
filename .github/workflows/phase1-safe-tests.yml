@@ -1,0 +1,73 @@
+name: Phase 1 Safe Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase1-safe-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  safe-tests:
+    name: Syntax and workflow validation (no external writes)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: node --check app.js
+
+      - name: Run Phase 1 functional smoke tests
+        run: node --test tests/phase1-smoke.test.cjs
+
+      - name: Validate workflow YAML
+        run: |
+          ruby -e 'require "yaml"; Dir[".github/workflows/*.yml"].each { |f| YAML.load_file(f); puts "YAML OK: #{f}" }'
+
+      - name: Check embedded scanner Python syntax without running scanners
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          import textwrap
+
+          workflow_files = [
+              Path(".github/workflows/metadata-scanner.yml"),
+              Path(".github/workflows/covers-scanner.yml"),
+              Path(".github/workflows/hires-audio-scanner.yml"),
+          ]
+
+          checked = 0
+          for workflow in workflow_files:
+              source = workflow.read_text(encoding="utf-8")
+              match = re.search(
+                  r"cat > [^\s]+ <<'PYTHON'\s*\n(.*?)\n\s*PYTHON\b",
+                  source,
+                  flags=re.DOTALL,
+              )
+              if not match:
+                  raise SystemExit(f"No embedded Python heredoc found in {workflow}")
+
+              python_source = textwrap.dedent(match.group(1))
+              compile(python_source, str(workflow), "exec")
+              print(f"Python syntax OK: {workflow}")
+              checked += 1
+
+          if checked != 3:
+              raise SystemExit(f"Expected 3 scanner scripts, checked {checked}")
+          PY
+
