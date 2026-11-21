@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - fix/phase-1-hardening
     types:
       - opened
       - synchronize
