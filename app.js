@@ -389,11 +389,14 @@ function showLoadError(message) {
       <h3 style="margin-bottom:10px;">Media data could not be loaded</h3>
       <p style="opacity:.65; margin-bottom:8px;">Google Sheet connection failed.</p>
       <small style="opacity:.45; display:block; margin-bottom:15px;">${escapeHtml(message || "Unknown error")}</small>
-      <button onclick="loadAllData()" style="padding:10px 18px; border:0; border-radius:8px; cursor:pointer; background:var(--blue); color:white; font-weight:700;">
+      <button id="retryLoadButton" type="button" style="padding:10px 18px; border:0; border-radius:8px; cursor:pointer; background:var(--blue); color:white; font-weight:700;">
         Retry
       </button>
     </div>
   `;
+
+  const retryButton = grid.querySelector("#retryLoadButton");
+  if (retryButton) retryButton.addEventListener("click", loadAllData);
 }
 
 function renderFeaturedSpotlight() {
