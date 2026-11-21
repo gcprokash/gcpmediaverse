@@ -1347,3 +1347,48 @@ footer {
     width: 100%;
   }
 }
+
+
+/* Consistent Details layout on phones and narrow browser viewports */
+@media (max-width: 900px) {
+  .detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    width: 100%;
+  }
+
+  .detail-cover {
+    width: min(100%, 320px);
+    max-width: 320px;
+    margin-inline: auto;
+  }
+
+  .detail > div {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .detail h2,
+  .detail .artist {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .detail-metadata,
+  .metadata-group,
+  .info-grid {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .info-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
