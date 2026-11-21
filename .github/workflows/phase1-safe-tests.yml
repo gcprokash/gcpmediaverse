@@ -31,6 +31,9 @@ jobs:
       - name: Check JavaScript syntax
         run: node --check app.js
 
+      - name: Run Phase 1 functional smoke tests
+        run: node --test tests/phase1-smoke.test.cjs
+
       - name: Validate workflow YAML
         run: |
           ruby -e 'require "yaml"; Dir[".github/workflows/*.yml"].each { |f| YAML.load_file(f); puts "YAML OK: #{f}" }'
