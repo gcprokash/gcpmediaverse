@@ -1587,14 +1587,5 @@ footer {
 .advanced-controls { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 18px; }
 .advanced-controls label { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:11px; }
 .advanced-controls select { max-width:190px; background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:9px; padding:9px 10px; }
-.lyrics-viewer { margin:24px 0; padding:18px; border:1px solid var(--line); border-radius:16px; background:rgba(0,0,0,.12); }
-.lyrics-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.lyrics-head h3 { margin:0; }
-.subtitle-upload { cursor:pointer; border:1px solid var(--mv-accent,var(--cyan)); color:var(--mv-accent,var(--cyan)); border-radius:10px; padding:9px 12px; font-size:12px; font-weight:800; }
-.lyrics-hint { color:var(--muted); font-size:12px; line-height:1.6; }
-.subtitle-viewer { max-height:360px; overflow:auto; padding:10px; border-radius:10px; background:rgba(0,0,0,.16); color:var(--text); }
-.subtitle-line { display:flex; gap:14px; padding:7px 4px; margin:0; border-bottom:1px solid var(--line); line-height:1.6; }
-.subtitle-line time { flex:0 0 76px; color:var(--mv-accent,var(--cyan)); font-size:11px; font-variant-numeric:tabular-nums; }
-.subtitle-line span { overflow-wrap:anywhere; }
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
-@media(max-width:600px){.insights-section,.artists-section{padding:22px 16px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat-card{padding:13px}.stat-card strong{font-size:24px}.artist-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.artist-tile{padding:10px;gap:7px}.artist-tile small{display:none}.advanced-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.advanced-controls label{display:flex;flex-direction:column;align-items:stretch}.advanced-controls select{max-width:none;width:100%;box-sizing:border-box}.lyrics-head{align-items:flex-start;flex-direction:column}.subtitle-line{gap:8px}.subtitle-line time{flex-basis:66px}}
+@media(max-width:600px){.insights-section,.artists-section{padding:22px 16px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat-card{padding:13px}.stat-card strong{font-size:24px}.artist-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.artist-tile{padding:10px;gap:7px}.artist-tile small{display:none}.advanced-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.advanced-controls label{display:flex;flex-direction:column;align-items:stretch}.advanced-controls select{max-width:none;width:100%;box-sizing:border-box}}
