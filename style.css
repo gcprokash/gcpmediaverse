@@ -1451,3 +1451,54 @@ footer {
     white-space: nowrap;
   }
 }
+
+/* Expandable full artist / contributor credits on the Details page */
+.detail .artist-credits {
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 5px;
+}
+
+.detail .artist-credits .artist {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.45;
+  max-height: calc(1.45em * 2);
+}
+
+.detail .artist-credits .artist.credits-expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  max-height: none;
+  overflow: visible;
+}
+
+.credits-toggle {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 6px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--mv-accent, var(--cyan));
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.credits-toggle[hidden] {
+  display: none !important;
+}
+
+.credits-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
