@@ -1539,9 +1539,19 @@ footer {
   right: max(18px, env(safe-area-inset-right));
   bottom: auto;
   z-index: 999;
-  touch-action: manipulation;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
   will-change: top;
   transition: top 180ms ease-out, background 0.2s ease, transform 0.2s ease;
+}
+
+.scroll-top-btn.is-dragging {
+  cursor: grabbing;
+  transition: none;
+  transform: scale(1.04);
+}
 }
 
 .scroll-top-btn[hidden] {
