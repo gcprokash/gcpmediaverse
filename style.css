@@ -1392,3 +1392,62 @@ footer {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Consistent two-line text limits for the Details header and metadata */
+.detail h2,
+.detail .artist {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.detail h2 {
+  line-height: 1.18;
+  max-height: calc(1.18em * 2);
+}
+
+.detail .artist {
+  line-height: 1.45;
+  max-height: calc(1.45em * 2);
+}
+
+.info b {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.45;
+  max-height: calc(1.45em * 2);
+}
+
+.metadata-heading {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Equal-width action buttons on desktop; mobile stacking remains unchanged */
+@media (min-width: 601px) {
+  .detail-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .detail-actions a,
+  .detail-actions button {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding-inline: 8px;
+    white-space: nowrap;
+  }
+}
