@@ -428,35 +428,63 @@ h2 {
   padding: 50px;
 }
 
-/* Load More Container & Button */
-.load-more-container {
-  text-align: center;
-  margin-top: 35px;
+/* Numbered media pagination */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 34px auto 12px;
+  padding: 8px 12px;
 }
 
-.load-more-btn {
-  background: #0e1d30;
-  color: var(--cyan);
+.pagination-container[hidden] {
+  display: none !important;
+}
+
+.page-btn {
+  min-width: 92px;
+  min-height: 42px;
+  padding: 10px 16px;
   border: 1px solid var(--line);
-  padding: 13px 32px;
-  border-radius: 12px;
+  border-radius: 10px;
+  background: var(--surface, rgba(10, 35, 30, .75));
+  color: var(--text, #e8f4ef);
   font-weight: 800;
-  font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  transition: transform .2s ease, background .2s ease, opacity .2s ease;
 }
 
-.load-more-btn:hover {
-  background: var(--blue);
-  color: #ffffff;
-  border-color: var(--blue);
+.page-btn:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(21, 149, 255, 0.3);
+  background: var(--accent, var(--cyan));
+  color: #07130f;
 }
 
-.load-more-btn:active {
-  transform: scale(0.96);
+.page-btn:disabled {
+  opacity: .38;
+  cursor: not-allowed;
+}
+
+.page-status {
+  min-width: 92px;
+  color: var(--muted, #8fa8bf);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .pagination-container {
+    gap: 9px;
+    margin-top: 24px;
+  }
+
+  .page-btn {
+    min-width: 82px;
+    padding-inline: 12px;
+  }
 }
 
 
@@ -1501,4 +1529,25 @@ footer {
   outline: 2px solid currentColor;
   outline-offset: 3px;
   border-radius: 3px;
+}
+
+
+/* Keep the floating scroll-to-top control above browser/system safe areas */
+.scroll-top-btn {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  z-index: 999;
+  touch-action: manipulation;
+}
+
+.scroll-top-btn[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .scroll-top-btn {
+    right: max(16px, env(safe-area-inset-right));
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
 }
