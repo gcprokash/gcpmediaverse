@@ -38,15 +38,14 @@ let MEDIA = [];
 let COVER_ASSETS = [];
 let AUDIO_ASSETS = [];
 let activeFilter = "all";
-let visibleCount = ITEMS_PER_PAGE;
+let currentPage = 1;
 
 /* প্রধান DOM এলিমেন্টসমূহ */
 const grid = document.getElementById("mediaGrid");
 const empty = document.getElementById("emptyState");
 const search = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
-const loadMoreBtn = document.getElementById("loadMoreBtn");
-const loadMoreContainer = document.getElementById("loadMoreContainer");
+const paginationContainer = document.getElementById("paginationContainer");
 const scrollTopBtn = document.getElementById("scrollTopBtn");
 const closeDetailsBtn = document.getElementById("closeDetails");
 const heroSection = document.querySelector(".hero");
@@ -312,7 +311,7 @@ function matches(item, filter) {
 
 function setFilter(filter) {
   activeFilter = filter;
-  visibleCount = ITEMS_PER_PAGE;
+  currentPage = 1;
 
   /* ফিল্টার বাটন ও টপবার ন্যাভ লিংক সিঙ্ক */
   document.querySelectorAll(".filter").forEach(b => {
@@ -520,7 +519,10 @@ function render() {
     return filterMatch && searchable.includes(q);
   });
 
-  const visibleData = data.slice(0, visibleCount);
+  const totalPages = Math.max(1, Math.ceil(data.length / ITEMS_PER_PAGE));
+  currentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const visibleData = data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   grid.innerHTML = visibleData.length
     ? visibleData.map(card).join("")
@@ -530,8 +532,18 @@ function render() {
     empty.hidden = data.length !== 0;
   }
 
-  if (loadMoreContainer) {
-    loadMoreContainer.hidden = !(data.length > visibleCount);
+  if (paginationContainer) {
+    if (totalPages <= 1) {
+      paginationContainer.hidden = true;
+      paginationContainer.innerHTML = "";
+    } else {
+      paginationContainer.hidden = false;
+      paginationContainer.innerHTML = `
+        <button type="button" class="page-btn page-prev" data-page="${currentPage - 1}" ${currentPage === 1 ? "disabled" : ""} aria-label="Previous page">← Prev</button>
+        <span class="page-status" aria-live="polite">Page ${currentPage} of ${totalPages}</span>
+        <button type="button" class="page-btn page-next" data-page="${currentPage + 1}" ${currentPage === totalPages ? "disabled" : ""} aria-label="Next page">Next →</button>
+      `;
+    }
   }
 }
 
@@ -924,7 +936,7 @@ document.querySelectorAll(".nav a[data-filter]").forEach(link => {
 /* সার্চ ইনপুট */
 if (search) {
   search.addEventListener("input", () => {
-    visibleCount = ITEMS_PER_PAGE;
+    currentPage = 1;
     render();
   });
 }
@@ -972,11 +984,20 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-/* লোড মোর বাটন */
-if (loadMoreBtn) {
-  loadMoreBtn.addEventListener("click", () => {
-    visibleCount += ITEMS_PER_PAGE;
+/* Pagination: প্রতি পেজে ১৮টি করে মিডিয়া */
+if (paginationContainer) {
+  paginationContainer.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-page]");
+    if (!button || button.disabled) return;
+
+    const nextPage = Number(button.dataset.page);
+    if (!Number.isInteger(nextPage) || nextPage < 1) return;
+
+    currentPage = nextPage;
     render();
+
+    const libraryTop = librarySection ? librarySection.getBoundingClientRect().top + window.scrollY - 82 : 0;
+    window.scrollTo({ top: Math.max(0, libraryTop), behavior: "smooth" });
   });
 }
 
