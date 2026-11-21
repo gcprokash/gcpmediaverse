@@ -1001,15 +1001,40 @@ if (paginationContainer) {
   });
 }
 
-/* স্ক্রোল টু টপ বাটন */
+/* স্ক্রোল বাটন: পেজ স্ক্রলের সঙ্গে ডান পাশে স্লাইডারের মতো ওঠানামা করবে */
 if (scrollTopBtn) {
-  window.addEventListener("scroll", () => {
-    scrollTopBtn.hidden = window.scrollY <= 350;
-  });
+  let scrollButtonFrame = 0;
+
+  const updateScrollButton = () => {
+    if (scrollButtonFrame) return;
+
+    scrollButtonFrame = window.requestAnimationFrame(() => {
+      scrollButtonFrame = 0;
+
+      const scrollY = window.scrollY || window.pageYOffset;
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const buttonHeight = scrollTopBtn.offsetHeight || 44;
+      const topMargin = 96;
+      const bottomMargin = 24;
+      const availableTravel = Math.max(0, window.innerHeight - buttonHeight - topMargin - bottomMargin);
+      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
+      const buttonTop = topMargin + (availableTravel * progress);
+
+      scrollTopBtn.style.top = `${buttonTop}px`;
+      scrollTopBtn.style.bottom = "auto";
+      scrollTopBtn.hidden = scrollY <= 350;
+    });
+  };
+
+  window.addEventListener("scroll", updateScrollButton, { passive: true });
+  window.addEventListener("resize", updateScrollButton);
+  window.addEventListener("load", updateScrollButton);
 
   scrollTopBtn.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
+
+  updateScrollButton();
 }
 
 /* সরাসরি লিঙ্কে প্রবেশ করলে মিডিয়া ওপেন করার ফাংশন */
