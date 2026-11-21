@@ -238,19 +238,26 @@ jobs:
               values = [headers]
               values.extend(rows)
 
-              # CLEAR ONLY HiResAudio
-              sheets_service.spreadsheets().values().clear(
-                  spreadsheetId=SPREADSHEET_ID,
-                  range=f"{SHEET_NAME}!A:ZZ",
-                  body={}
-              ).execute()
+              # Validate payload before touching the live range.
+              if any(len(row) != 5 for row in rows):
+                  raise RuntimeError("Hi-Res audio scanner produced an invalid row shape")
+              titles = [str(row[0]).strip().casefold() for row in rows if str(row[0]).strip()]
+              if len(titles) != len(set(titles)):
+                  raise RuntimeError("Duplicate Hi-Res audio titles detected; preserving existing sheet")
 
-              # WRITE DATA
+              # Write first. Only clear stale trailing rows after the write succeeds.
               sheets_service.spreadsheets().values().update(
                   spreadsheetId=SPREADSHEET_ID,
                   range=f"{SHEET_NAME}!A1",
                   valueInputOption="RAW",
                   body={"values": values}
+              ).execute()
+
+              clear_from = len(values) + 1
+              sheets_service.spreadsheets().values().clear(
+                  spreadsheetId=SPREADSHEET_ID,
+                  range=f"{SHEET_NAME}!A{clear_from}:ZZ",
+                  body={}
               ).execute()
 
 
