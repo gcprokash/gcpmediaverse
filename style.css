@@ -1233,3 +1233,174 @@ footer {
     min-height: 220px;
   }
 }
+
+
+/* =========================================================
+   10. MEDIAVERSE BRAND THEME — DEEP TEAL / BONE / MAGENTA
+   Primary palette: #012A23 · #F9EFDB · #C12589
+   ========================================================= */
+:root {
+  --bg: #012A23;
+  --panel: #07382F;
+  --panel2: #0B453A;
+  --line: #285B50;
+  --text: #F9EFDB;
+  --muted: #C3D6CC;
+  --blue: #C12589;
+  --cyan: #C12589;
+  --green: #D7B98E;
+  --purple: #C12589;
+  --pink: #C12589;
+}
+
+html, body {
+  background: radial-gradient(circle at 50% -12%, #155447 0, #07382F 42%, #012A23 82%);
+  color: var(--text);
+}
+
+.topbar {
+  background: rgba(1, 42, 35, 0.94);
+  border-bottom-color: var(--line);
+}
+
+.brand, .brand-mark {
+  color: var(--text);
+  border-color: var(--pink);
+}
+
+.brand b, .footer-brand b, .spotlight-title {
+  color: var(--text);
+}
+
+.nav a { color: #D8E5DC; }
+.nav a:hover, .nav a.active {
+  background: var(--pink);
+  color: #FFFFFF;
+}
+
+.search-wrap {
+  background: #062F28;
+  border-color: var(--line);
+}
+.search-wrap:focus-within {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(193, 37, 137, 0.16);
+}
+.search-wrap input { color: var(--text); }
+.search-wrap button, .filter.active, .filter:hover,
+.load-more-btn:hover, .actions .watch, .spotlight-actions .watch,
+.detail-actions .play-button {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: #FFFFFF;
+}
+
+.hero {
+  background:
+    linear-gradient(90deg, rgba(1, 42, 35, 0.97), rgba(1, 42, 35, 0.78), rgba(1, 42, 35, 0.34)),
+    url("https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1800&q=80") center/cover;
+}
+.hero h1 span, .eyebrow, .artist, .spotlight-artist,
+.footer-disclaimer b, .load-more-btn, .scroll-top-btn:hover {
+  color: var(--pink);
+}
+.hero-sub { color: #E0E8DE; }
+.feature-row span {
+  background: rgba(1, 42, 35, 0.88);
+  border-color: rgba(249, 239, 219, 0.28);
+  color: var(--text);
+}
+
+.spotlight-card {
+  background: linear-gradient(135deg, rgba(11, 69, 58, 0.96), rgba(1, 42, 35, 0.98));
+  border-color: rgba(193, 37, 137, 0.45);
+}
+.spotlight-card:hover { border-color: var(--pink); }
+.spotlight-badge {
+  background: rgba(193, 37, 137, 0.14);
+  color: #F0A6D4;
+  border-color: var(--pink);
+}
+.spotlight-actions .download, .actions .download,
+.detail-actions .download-button {
+  background: #D7B98E;
+  color: #17251E;
+}
+.spotlight-actions .audio-download, .actions .audio-download,
+.detail-actions .audio-download-button {
+  background: #8B3E75;
+  color: #FFFFFF;
+}
+
+.filter {
+  background: #07382F;
+  border-color: var(--line);
+  color: var(--text);
+}
+.load-more-btn {
+  background: #07382F;
+  border-color: var(--line);
+  color: var(--text);
+}
+.card {
+  background: linear-gradient(180deg, #0B453A, #052F28);
+  border-color: #285B50;
+}
+.card:hover { border-color: var(--pink); }
+.thumb, .cover-placeholder {
+  background: linear-gradient(135deg, #155447, #07382F);
+}
+.thumb .quality {
+  background: var(--bone, #F9EFDB);
+  color: #012A23;
+}
+.tag {
+  background: #07382F;
+  border-color: #397064;
+  color: #E7EBDD;
+}
+.badge { background: #124A3F; }
+.badge.audio { color: #F0A6D4; }
+.badge.hires { color: #E8C98F; }
+.badge.sub { color: #B9DCC8; }
+
+.details-section {
+  background: radial-gradient(circle at 50% 0, #0B453A, #012A23 72%);
+}
+.close-btn, .detail-actions .copy-link-button {
+  background: #07382F;
+  color: var(--text);
+  border-color: var(--line);
+}
+.close-btn:hover, .detail-actions .copy-link-button:hover {
+  background: #155447;
+  border-color: var(--pink);
+}
+.detail-cover {
+  background: linear-gradient(135deg, #155447, #07382F);
+  border-color: var(--line);
+}
+.info { background: #07382F; }
+
+footer {
+  background: linear-gradient(180deg, rgba(7, 56, 47, 0.65), #012A23);
+  border-top-color: var(--line);
+}
+.footer-disclaimer {
+  background: rgba(7, 56, 47, 0.55);
+  border-color: rgba(249, 239, 219, 0.12);
+}
+.footer-disclaimer p { color: #C3D6CC; }
+.footer-bottom { border-top-color: rgba(249, 239, 219, 0.14); color: #AFC7BA; }
+.footer-bottom b { color: var(--text); }
+
+.scroll-top-btn {
+  background: rgba(193, 37, 137, 0.92);
+  border-color: rgba(249, 239, 219, 0.35);
+}
+.scroll-top-btn:hover { background: #F9EFDB; color: #012A23; }
+
+:focus-visible {
+  outline: 2px solid #C12589;
+  outline-offset: 3px;
+}
