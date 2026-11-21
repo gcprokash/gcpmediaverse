@@ -1,6 +1,6 @@
 # MediaVerse Database Upgrade — Phase 2 Foundation
 
-**Status:** Draft / non-production  
+**Status:** Draft / non-production; scanner write-safety hardening added on this branch  
 **Branch:** `phase-2-database-foundation`  
 **Production changes:** None. This document does not change Google Sheets, scheduled scanners, or the live website.
 
@@ -54,17 +54,20 @@ Counts exclude the header row and trailing empty spreadsheet rows/columns.
 - `app.js` loads only Main DB `Media`, Assets `Covers`, and Assets `HiResAudio` for the current website.
 - The metadata scanner owns the Main DB tabs `Media`, `Files`, `Video`, `Audio`, `Subtitle`, and `Covers`.
 - The two asset scanners own Assets `Covers` and `HiResAudio`.
-- The scanners currently clear their target ranges and rewrite the tabs. The metadata scanner uses fixed header arrays. The Covers and HiResAudio scanners use four and five columns respectively.
-- Therefore, manually adding columns to scanner-owned tabs without updating the scanner header contract will cause those columns to disappear on the next scheduled scan.
+- The scanners use fixed header arrays. The Covers and HiResAudio scanners use four and five columns respectively.
+- On this feature branch, each scanner now validates row width and duplicate identifiers/titles before writing. Metadata child tabs also validate their `Media_ID` references against the scan's Media rows.
+- Each scanner writes the new payload first and clears stale trailing rows only after the write succeeds. This reduces the risk of an API write failure erasing the previous contents.
+- These are per-tab safeguards, not a multi-tab transaction: a later tab failure can still leave tabs from different scan generations. Staging tabs and controlled promotion remain future work.
+- Manually adding columns to scanner-owned tabs without updating the scanner header contract will still cause those columns to disappear on the next scan.
 
 ## Proposed next changes (not yet applied)
 
 ### A. Scanner safety and schema governance
-- Define one explicit schema version and header contract per scanner-owned tab.
-- Validate required headers, row shape, unique IDs, foreign keys, and count reconciliation before any clear/write operation.
-- Abort a write on unexpected empty scans, parse failures, or validation failures; keep the previous sheet contents intact.
-- Write to a staging tab/range first, validate, then replace the target contents in a single controlled operation where feasible.
-- Emit a scan summary: discovered, parsed, skipped, duplicate, invalid, and written counts.
+- Existing fixed header arrays remain the schema contract; a formal schema version is still pending.
+- Feature-branch changes validate row width and duplicate IDs/titles before writes. Metadata child tabs validate their Media_ID references against the current scan's Media rows.
+- Empty scan results continue to preserve the existing tab. New data is written before stale trailing rows are cleared, so a failed write does not first erase the old data.
+- This is not an atomic multi-tab migration. Staging tabs, whole-scan validation (including count reconciliation), and controlled promotion are still pending.
+- A structured scan summary with discovered, parsed, skipped, duplicate, invalid, and written counts is still pending.
 - Keep existing column names and order during the first migration; append new optional columns only after both scanner and website readers are updated.
 
 ### B. Track classification
@@ -86,9 +89,9 @@ Counts exclude the header row and trailing empty spreadsheet rows/columns.
 ## Migration / release sequence
 
 1. Create and verify separate Google Sheets copies and offline exports. (Only the supplied XLSX copies have been backed up in this work session; no live Google Sheets copy has been created.)
-2. Test scanner parsing and validation against exported fixtures.
-3. Update scanner and website readers together on this feature branch.
-4. Run automated tests and compare generated rows against the current export.
+2. Run scanner syntax and validation tests against exported fixtures; verify all three scanner workflows in CI.
+3. Complete whole-scan validation and staging/promotion design before any live write.
+4. Update scanner and website readers together on this feature branch if schema changes are introduced.
 5. Review a draft PR; do not merge automatically.
 6. After explicit approval, create a fresh production backup and apply the controlled Google Sheets migration.
 7. Verify the live site and scheduled scanner runs.
