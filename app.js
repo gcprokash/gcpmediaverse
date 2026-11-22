@@ -1135,7 +1135,7 @@ if (paginationContainer) {
 }
 
 /* স্ক্রোল বাটন: পেজ স্ক্রলের সঙ্গে ডান পাশে স্লাইডারের মতো ওঠানামা করবে */
-if (scrollTopBtn) {
+if (scrollTopBtn && window.matchMedia("(max-width: 1024px)").matches) {
   let scrollButtonFrame = 0;
 
   const updateScrollButton = () => {

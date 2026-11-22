@@ -940,6 +940,13 @@ footer {
    8. FLOATING ACTIONS (SCROLL TO TOP)
    ========================================================= */
 
+/* Desktop: floating scroll control সম্পূর্ণ বন্ধ */
+@media (min-width: 1025px) {
+  .scroll-top-btn {
+    display: none !important;
+  }
+}
+
 .scroll-top-btn {
   position: fixed;
   bottom: 25px;
