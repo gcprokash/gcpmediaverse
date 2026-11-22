@@ -60,6 +60,15 @@ const librarySection = document.getElementById("library");
 const detailsSection = document.getElementById("details");
 const detailsContent = document.getElementById("detailsContent");
 
+/* Details view resize listener: keep only one active handler. */
+let detailCreditsResizeHandler = null;
+
+function cleanupDetailCreditsResize() {
+  if (!detailCreditsResizeHandler) return;
+  window.removeEventListener("resize", detailCreditsResizeHandler);
+  detailCreditsResizeHandler = null;
+}
+
 
 /* =========================================================
    3. UTILITY & HELPER FUNCTIONS
@@ -931,11 +940,14 @@ window.showDetails = function(id, fromHistory = false) {
     }
   };
 
+  cleanupDetailCreditsResize();
+  detailCreditsResizeHandler = updateDetailCreditsToggle;
+
   window.requestAnimationFrame(updateDetailCreditsToggle);
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(updateDetailCreditsToggle);
   }
-  window.addEventListener("resize", updateDetailCreditsToggle, { passive: true });
+  window.addEventListener("resize", detailCreditsResizeHandler, { passive: true });
 
   detailsSection.hidden = false;
 
@@ -960,6 +972,7 @@ window.toggleArtistCredits = function(button) {
 };
 
 function returnToLibrary() {
+  cleanupDetailCreditsResize();
   closeMediaPlayer();
   if (detailsSection) detailsSection.hidden = true;
 
