@@ -6,7 +6,9 @@
     { id: "pure-white", file: "themes/pure-white.css", color: "#FFFFFF" },
     { id: "amoled-black", file: "themes/amoled-black.css", color: "#080808" },
     { id: "ocean-blue", file: "themes/ocean-blue.css", color: "#102A56" },
-    { id: "sunset-amber", file: "themes/sunset-amber.css", color: "#24140B" }
+    { id: "sunset-amber", file: "themes/sunset-amber.css", color: "#24140B" },
+    { id: "rose-gold", file: "themes/rose-gold.css", color: "#171316" },
+    { id: "cyber-neon", file: "themes/cyber-neon.css", color: "#050A0D" }
   ];
   const STORAGE_KEY = "mediaverse-theme";
   const stylesheet = document.getElementById("mediaverse-theme");
