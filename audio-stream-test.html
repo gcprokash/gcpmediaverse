@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10131b">
+  <title>MediaVerse — HiRes Audio Stream Test</title>
+  <style>
+    :root{color-scheme:dark;--bg:#10131b;--panel:#191f2b;--line:#30394a;--text:#eef2fa;--muted:#a8b2c4;--accent:#9b8cff;--ok:#58d6a0;--warn:#ffc56b;--bad:#ff7d87}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#20283a 0,var(--bg) 55%);color:var(--text);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;padding:24px 14px 48px}
+    main{max-width:850px;margin:auto}h1{font-size:clamp(24px,5vw,36px);line-height:1.15;margin:8px 0}h2{font-size:18px;margin:0 0 8px}.sub,.hint{color:var(--muted)}.sub{margin:0 0 22px}
+    .notice{border:1px solid #66532e;background:#332b1c;color:#ffe1a8;border-radius:12px;padding:12px 14px;margin:18px 0}
+    .track{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin:14px 0}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:7px 0 12px}.tag{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:2px 9px;color:#d8dff0}
+    audio{display:block;width:100%;margin:12px 0}button,.link{border:1px solid var(--line);border-radius:9px;padding:8px 11px;background:#252e40;color:var(--text);font:inherit;text-decoration:none;display:inline-block}
+    button{cursor:pointer}button:active{transform:scale(.98)}.status{font-size:13px;color:var(--muted);padding:9px 10px;background:#111722;border-radius:9px;overflow-wrap:anywhere}
+    .status.ok{color:var(--ok)}.status.warn{color:var(--warn)}.status.bad{color:var(--bad)}
+    .diagnostics{font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:#c1cada;white-space:pre-wrap;overflow-wrap:anywhere;margin:9px 0 0}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}.foot{margin-top:24px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+<main>
+  <h1>MediaVerse HiRes Audio Test</h1>
+  <p class="sub">Standalone browser test • Google Drive audio assets • No changes to the main MediaVerse player</p>
+  <div class="notice"><strong>Test purpose:</strong> Check whether Google Drive serves each file in a way that the browser can play, buffer and seek. A successful Play alone does not prove seeking works—try dragging the progress bar to a later position.</div>
+  <div id="tracks"></div>
+  <section class="track">
+    <h2>Browser capability snapshot</h2>
+    <div id="capabilities" class="diagnostics"></div>
+  </section>
+  <p class="foot">Test on Android Chrome as well as desktop if possible. Allow the track to start, wait for buffering, seek forward and backward, then report any error text shown here. Do not share private Google Drive access or account details.</p>
+</main>
+<script>
+const samples = [
+  {title:"A Nani Beautifull",format:"M4A",url:"https://drive.google.com/uc?export=download&id=11ch53pq5YjN32uwrLAgzXHCFvxyVNKYd"},
+  {title:"Mere Yaar Ki Shaadi Hai",format:"WAV",url:"https://drive.google.com/uc?export=download&id=1ae07iHkWL6ZBYuahaF2KI0htX5hoW0Rw"},
+  {title:"Lal Chuneri",format:"FLAC",url:"https://drive.google.com/uc?export=download&id=1ZNUGWwwZp-h7SRCdJvsudqCcxzEOIMtp"}
+];
+const container=document.getElementById("tracks");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+samples.forEach((track,i)=>{
+  const card=document.createElement("section");card.className="track";
+  card.innerHTML=`<h2>${esc(track.title)}</h2><div class="meta"><span class="tag">${track.format}</span><span class="tag">Sample ${i+1} of 3</span></div>
+  <audio controls preload="metadata" crossorigin="anonymous"></audio>
+  <div class="actions"><button type="button" class="reload">Reload test</button><a class="link" target="_blank" rel="noopener" href="${track.url}">Open source URL</a></div>
+  <p class="status" aria-live="polite">Waiting to load metadata…</p><pre class="diagnostics"></pre>`;
+  const audio=card.querySelector("audio"),status=card.querySelector(".status"),diag=card.querySelector("pre");
+  const events=["loadstart","loadedmetadata","loadeddata","canplay","canplaythrough","play","playing","pause","waiting","stalled","suspend","seeking","seeked","ended","error","abort","emptied"];
+  function report(eventName){
+    const err=audio.error?("MediaError code "+audio.error.code+": "+(["","MEDIA_ERR_ABORTED","MEDIA_ERR_NETWORK","MEDIA_ERR_DECODE","MEDIA_ERR_SRC_NOT_SUPPORTED"][audio.error.code]||"Unknown")):"No MediaError";
+    const time=Number.isFinite(audio.currentTime)?audio.currentTime.toFixed(2)+"s":"—";
+    const duration=Number.isFinite(audio.duration)?audio.duration.toFixed(2)+"s":"unknown";
+    const ranges=[];for(let n=0;n<audio.seekable.length;n++)ranges.push(audio.seekable.start(n).toFixed(1)+"–"+audio.seekable.end(n).toFixed(1)+"s");
+    diag.textContent="Event: "+eventName+"\nCurrent time: "+time+" / "+duration+"\nreadyState: "+audio.readyState+" | networkState: "+audio.networkState+"\nSeekable ranges: "+(ranges.join(", ")||"none reported")+"\n"+err;
+    status.textContent=eventName==="error"?"Playback error — see diagnostics below":eventName==="canplay"||eventName==="canplaythrough"||eventName==="playing"?"Browser reports media is playable — test seeking now":eventName==="waiting"||eventName==="stalled"?"Buffering / stalled…":eventName==="loadedmetadata"?"Metadata loaded — press Play and test seeking":"Latest media event: "+eventName;
+    status.className="status "+(eventName==="error"?"bad":eventName==="canplay"||eventName==="canplaythrough"||eventName==="playing"?"ok":eventName==="waiting"||eventName==="stalled"?"warn":"");
+  }
+  events.forEach(name=>audio.addEventListener(name,()=>report(name)));
+  card.querySelector(".reload").addEventListener("click",()=>{audio.pause();audio.removeAttribute("src");audio.load();audio.src=track.url;audio.load();status.textContent="Reloading…";status.className="status";});
+  audio.src=track.url;audio.load();container.appendChild(card);
+});
+const probe=document.createElement("audio");
+document.getElementById("capabilities").textContent=[
+  "Browser: "+navigator.userAgent,
+  "M4A/AAC (audio/mp4): "+(probe.canPlayType('audio/mp4; codecs="mp4a.40.2"')||"unknown"),
+  "WAV (audio/wav): "+(probe.canPlayType("audio/wav")||"unknown"),
+  "FLAC (audio/flac): "+(probe.canPlayType("audio/flac")||"unknown"),
+  "Note: canPlayType is only a browser hint; actual file codec and server response determine playback."
+].join("\n");
+</script>
+</body>
+</html>
