@@ -46,7 +46,6 @@ const empty = document.getElementById("emptyState");
 const search = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const paginationContainer = document.getElementById("paginationContainer");
-const scrollTopBtn = document.getElementById("scrollTopBtn");
 const closeDetailsBtn = document.getElementById("closeDetails");
 const heroSection = document.querySelector(".hero");
 const featuredSpotlight = document.getElementById("featuredSpotlight");
@@ -1156,111 +1155,6 @@ if (paginationContainer) {
     const libraryTop = librarySection ? librarySection.getBoundingClientRect().top + window.scrollY - 82 : 0;
     window.scrollTo({ top: Math.max(0, libraryTop), behavior: "smooth" });
   });
-}
-
-/* স্ক্রোল বাটন: পেজ স্ক্রলের সঙ্গে ডান পাশে স্লাইডারের মতো ওঠানামা করবে */
-if (scrollTopBtn && window.matchMedia("(max-width: 1024px)").matches) {
-  let scrollButtonFrame = 0;
-
-  const updateScrollButton = () => {
-    if (scrollButtonFrame) return;
-
-    scrollButtonFrame = window.requestAnimationFrame(() => {
-      scrollButtonFrame = 0;
-
-      const scrollY = window.scrollY || window.pageYOffset;
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const buttonHeight = scrollTopBtn.offsetHeight || 44;
-      const topMargin = 96;
-      const bottomMargin = 24;
-      const availableTravel = Math.max(0, window.innerHeight - buttonHeight - topMargin - bottomMargin);
-      const progress = Math.min(1, Math.max(0, scrollY / maxScroll));
-      const buttonTop = topMargin + (availableTravel * progress);
-
-      scrollTopBtn.style.top = `${buttonTop}px`;
-      scrollTopBtn.style.bottom = "auto";
-      scrollTopBtn.hidden = scrollY <= 350;
-    });
-  };
-
-  window.addEventListener("scroll", updateScrollButton, { passive: true });
-  window.addEventListener("resize", updateScrollButton);
-  window.addEventListener("load", updateScrollButton);
-
-  /* Pointer drag: টেনে উপরে/নিচে নিলে পেজও একই অনুপাতে স্ক্রল হবে */
-  let isDraggingScrollButton = false;
-  let dragStartY = 0;
-  let dragStartTop = 0;
-  let latestPointerY = 0;
-  let dragFrame = 0;
-  let suppressNextClick = false;
-
-  scrollTopBtn.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0 && event.pointerType === "mouse") return;
-    isDraggingScrollButton = true;
-    suppressNextClick = false;
-    dragStartY = event.clientY;
-    latestPointerY = event.clientY;
-    dragStartTop = scrollTopBtn.getBoundingClientRect().top;
-    scrollTopBtn.classList.add("is-dragging");
-    scrollTopBtn.setPointerCapture(event.pointerId);
-    event.preventDefault();
-  });
-
-  scrollTopBtn.addEventListener("pointermove", (event) => {
-    if (!isDraggingScrollButton) return;
-
-    latestPointerY = event.clientY;
-    suppressNextClick = true;
-    if (dragFrame) return;
-
-    /* প্রতি ডিসপ্লে ফ্রেমে একবারই আপডেট—আঙুলের সঙ্গে তাৎক্ষণিক ও মসৃণ */
-    dragFrame = window.requestAnimationFrame(() => {
-      dragFrame = 0;
-      if (!isDraggingScrollButton) return;
-
-      const buttonHeight = scrollTopBtn.offsetHeight || 44;
-      const topMargin = 96;
-      const bottomMargin = 24;
-      const availableTravel = Math.max(1, window.innerHeight - buttonHeight - topMargin - bottomMargin);
-      const nextTop = Math.min(
-        topMargin + availableTravel,
-        Math.max(topMargin, dragStartTop + (latestPointerY - dragStartY))
-      );
-      const progress = (nextTop - topMargin) / availableTravel;
-      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-
-      scrollTopBtn.style.top = `${nextTop}px`;
-      window.scrollTo({ top: progress * maxScroll, behavior: "instant" });
-    });
-  });
-
-  const finishScrollButtonDrag = () => {
-    if (!isDraggingScrollButton) return;
-    isDraggingScrollButton = false;
-    if (dragFrame) {
-      window.cancelAnimationFrame(dragFrame);
-      dragFrame = 0;
-    }
-    scrollTopBtn.classList.remove("is-dragging");
-    updateScrollButton();
-  };
-
-  scrollTopBtn.addEventListener("pointerup", finishScrollButtonDrag);
-  scrollTopBtn.addEventListener("pointercancel", finishScrollButtonDrag);
-  scrollTopBtn.addEventListener("lostpointercapture", finishScrollButtonDrag);
-
-  scrollTopBtn.addEventListener("click", (event) => {
-    if (suppressNextClick) {
-      event.preventDefault();
-      event.stopPropagation();
-      suppressNextClick = false;
-      return;
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
-
-  updateScrollButton();
 }
 
 /* সরাসরি লিঙ্কে প্রবেশ করলে মিডিয়া ওপেন করার ফাংশন */
