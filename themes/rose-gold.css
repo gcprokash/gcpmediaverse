@@ -1,0 +1,14 @@
+/* ROSE GOLD — charcoal, rose metallic and warm champagne */
+:root{
+  --mv-bg:#171316;
+  --mv-panel:#241D22;
+  --mv-panel-2:#382A33;
+  --mv-line:#735565;
+  --mv-text:#FFF4F0;
+  --mv-muted:#D7C3CB;
+  --mv-accent:#D9A0AD;
+  --mv-accent-text:#24161C;
+  --mv-highlight:#E8C7A0;
+  --mv-audio:#A66B86;
+  --mv-hero-overlay:rgba(23,19,22,.95);
+}
