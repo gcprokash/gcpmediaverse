@@ -246,6 +246,17 @@ async function loadAllData() {
       };
     }).filter(item => item.title);
 
+    /* Title indexes keep asset matching efficient while preserving the first sheet match. */
+    const coverByTitle = new Map();
+    COVER_ASSETS.forEach(item => {
+      if (!coverByTitle.has(item.key)) coverByTitle.set(item.key, item);
+    });
+
+    const audioByTitle = new Map();
+    AUDIO_ASSETS.forEach(item => {
+      if (!audioByTitle.has(item.key)) audioByTitle.set(item.key, item);
+    });
+
     /* ৩. মেইন মিডিয়া শিট ম্যাপিং */
     MEDIA = mediaRows.map((row, index) => {
       const c = row.c || [];
@@ -253,8 +264,8 @@ async function loadAllData() {
       if (!title || title === "Title") return null;
 
       const mediaKey = normalizeTitle(title);
-      const cover = COVER_ASSETS.find(item => item.key === mediaKey) || null;
-      const audio = AUDIO_ASSETS.find(item => item.key === mediaKey) || null;
+      const cover = coverByTitle.get(mediaKey) || null;
+      const audio = audioByTitle.get(mediaKey) || null;
       const embeddedHiRes = numberValue(c[12]) > 0;
       const externalHiRes = !!(audio && audio.downloadUrl);
 
