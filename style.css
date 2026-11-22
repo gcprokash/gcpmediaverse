@@ -940,12 +940,6 @@ footer {
    8. FLOATING ACTIONS (SCROLL TO TOP)
    ========================================================= */
 
-/* Desktop: floating scroll control সম্পূর্ণ বন্ধ */
-@media (min-width: 1025px) {
-  .scroll-top-btn {
-    display: none !important;
-  }
-}
 
 .scroll-top-btn {
   position: fixed;
@@ -1596,3 +1590,13 @@ footer {
 .advanced-controls select { max-width:190px; background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:9px; padding:9px 10px; }
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
 @media(max-width:600px){.insights-section,.artists-section{padding:22px 16px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat-card{padding:13px}.stat-card strong{font-size:24px}.artist-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.artist-tile{padding:10px;gap:7px}.artist-tile small{display:none}.advanced-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.advanced-controls label{display:flex;flex-direction:column;align-items:stretch}.advanced-controls select{max-width:none;width:100%;box-sizing:border-box}}
+
+/* Desktop: hide only the floating scroll control; keep page scrolling enabled */
+@media (min-width: 1025px) {
+  #scrollTopBtn,
+  .scroll-top-btn {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
