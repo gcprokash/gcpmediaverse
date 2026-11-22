@@ -1,0 +1,14 @@
+/* CYBER NEON — near-black, electric cyan and acid-lime accents */
+:root{
+  --mv-bg:#050A0D;
+  --mv-panel:#0B151A;
+  --mv-panel-2:#10232A;
+  --mv-line:#1C4650;
+  --mv-text:#E7FBFF;
+  --mv-muted:#9BBFC6;
+  --mv-accent:#00F5D4;
+  --mv-accent-text:#001B19;
+  --mv-highlight:#B8FF3B;
+  --mv-audio:#9B5CFF;
+  --mv-hero-overlay:rgba(5,10,13,.96);
+}
