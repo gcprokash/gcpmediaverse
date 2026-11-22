@@ -937,45 +937,6 @@ footer {
 
 
 /* =========================================================
-   8. FLOATING ACTIONS (SCROLL TO TOP)
-   ========================================================= */
-
-
-.scroll-top-btn {
-  position: fixed;
-  bottom: 25px;
-  right: 20px;
-  z-index: 99;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(21, 149, 255, 0.85);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: #ffffff;
-  border: 1px solid rgba(25, 215, 255, 0.4);
-  font-size: 20px;
-  font-weight: 900;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.scroll-top-btn:hover {
-  transform: translateY(-4px);
-  background: var(--cyan);
-  color: #050b14;
-}
-
-.scroll-top-btn:active {
-  transform: scale(0.92);
-}
-
-
-/* =========================================================
    9. RESPONSIVE BREAKPOINTS (5-TIER SYSTEM)
    ========================================================= */
 
@@ -1534,39 +1495,6 @@ footer {
   outline: 2px solid currentColor;
   outline-offset: 3px;
   border-radius: 3px;
-}
-
-
-/* Scroll-to-top button follows page scroll progress like a vertical slider */
-.scroll-top-btn {
-  position: fixed;
-  top: 96px;
-  right: max(18px, env(safe-area-inset-right));
-  bottom: auto;
-  z-index: 999;
-  touch-action: none;
-  cursor: grab;
-  user-select: none;
-  -webkit-user-select: none;
-  will-change: top;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-
-.scroll-top-btn.is-dragging {
-  cursor: grabbing;
-  transition: none;
-  transform: scale(1.04);
-}
-}
-
-.scroll-top-btn[hidden] {
-  display: none !important;
-}
-
-@media (max-width: 600px) {
-  .scroll-top-btn {
-    right: max(16px, env(safe-area-inset-right));
-  }
 }
 
 
