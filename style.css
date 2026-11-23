@@ -1408,21 +1408,75 @@ footer {
   text-overflow: ellipsis;
 }
 
-/* Equal-width action buttons on desktop; mobile stacking remains unchanged */
-@media (min-width: 601px) {
+/* Details page responsive layout: balanced desktop columns and readable actions */
+@media (min-width: 769px) {
+  .details-section {
+    padding: 32px clamp(24px, 4vw, 64px) 64px;
+  }
+
+  .detail {
+    width: 100%;
+    max-width: 1440px;
+    grid-template-columns: minmax(300px, 420px) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(28px, 4vw, 56px);
+  }
+
+  .detail-cover {
+    width: 100%;
+    max-width: 420px;
+    aspect-ratio: 1 / 1;
+    align-self: start;
+  }
+
+  .detail-content {
+    min-width: 0;
+    width: 100%;
+  }
+
   .detail-actions {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
+    gap: 12px;
   }
 
   .detail-actions a,
   .detail-actions button {
     width: 100%;
     min-width: 0;
-    min-height: 44px;
-    padding-inline: 8px;
-    white-space: nowrap;
+    min-height: 52px;
+    padding: 12px 14px;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .detail-actions .copy-link-button {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1200px) {
+  .detail h2 {
+    font-size: clamp(34px, 3vw, 46px);
+  }
+
+  .info-grid {
+    gap: 12px;
+  }
+
+  .info {
+    padding: 13px 14px;
+  }
+
+  .info small {
+    font-size: 11px;
+  }
+
+  .info b {
+    font-size: 14px;
   }
 }
 
