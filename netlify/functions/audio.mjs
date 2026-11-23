@@ -68,7 +68,8 @@ export default async (request) => {
       const type = (response.headers.get("content-type") || "").toLowerCase();
       const looksLikeAudio = type.startsWith("audio/") ||
         type.includes("application/octet-stream") ||
-        type.includes("application/mp4");
+        type.includes("application/mp4") ||
+        type.includes("video/mp4");
 
       if (!response.ok || !looksLikeAudio) {
         lastFailure = !response.ok
