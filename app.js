@@ -952,31 +952,29 @@ window.showDetails = function(id, fromHistory = false) {
 
   const audioElement = detailsContent.querySelector("#mediaverseAudio");
   if (audioElement) {
-    const audioSources = getDriveAudioSources(
-      audioElement.dataset.driveUrl,
-      audioElement.dataset.downloadUrl
+    const fileId = getDriveFileId(
+      audioElement.dataset.driveUrl || audioElement.dataset.downloadUrl
     );
-    let sourceIndex = 0;
     const errorMessage = detailsContent.querySelector("#mvAudioError");
 
-    const loadNextAudioSource = () => {
-      if (sourceIndex >= audioSources.length) {
-        if (errorMessage) {
-          errorMessage.hidden = false;
-          errorMessage.firstChild.textContent =
-            "Google Drive থেকে অডিও স্ট্রিম করা যায়নি। ফাইলটি Drive-এ চালানো যাচ্ছে, কিন্তু এই ব্রাউজারে সরাসরি স্ট্রিমিং সীমাবদ্ধ হতে পারে। ";
-        }
-        return;
-      }
-      audioElement.src = audioSources[sourceIndex++];
+    if (fileId) {
+      audioElement.src = `/api/audio?fileId=${encodeURIComponent(fileId)}`;
       audioElement.load();
-    };
+    } else if (errorMessage) {
+      errorMessage.hidden = false;
+      errorMessage.firstChild.textContent = "Google Drive ফাইলের ID পাওয়া যায়নি। ";
+    }
 
-    audioElement.addEventListener("error", loadNextAudioSource);
     audioElement.addEventListener("loadedmetadata", () => {
       if (errorMessage) errorMessage.hidden = true;
     });
-    loadNextAudioSource();
+    audioElement.addEventListener("error", () => {
+      if (errorMessage) {
+        errorMessage.hidden = false;
+        errorMessage.firstChild.textContent =
+          "MediaVerse-এর Audio Proxy থেকে অডিও লোড হয়নি। Drive ফাইলের sharing permission ও Proxy response পরীক্ষা করতে হবে। ";
+      }
+    }, { once: true });
   }
 
   const creditsText = detailsContent.querySelector(".detail-artist-credits .artist");
