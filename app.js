@@ -476,9 +476,9 @@ function card(x) {
   ` : "";
 
   const audioButton = x.audioUrl ? `
-    <button type="button" class="download audio-download" onclick="event.stopPropagation(); showDetails('${escapeJs(x.id)}');">
+    <a class="download audio-download" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener" onclick="event.stopPropagation();">
       ▶ Play Audio
-    </button>
+    </a>
   ` : "";
 
   return `
