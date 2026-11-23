@@ -832,7 +832,7 @@ window.showDetails = function(id, fromHistory = false) {
     <div class="detail">
       <div class="detail-cover">${cover}</div>
 
-      <div>
+      <div class="detail-content">
         <p class="eyebrow">MEDIA DETAILS</p>
         <h2>${escapeHtml(x.title || "Untitled")}</h2>
         <div class="artist-credits detail-artist-credits">
