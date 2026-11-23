@@ -959,9 +959,28 @@ window.showDetails = function(id, fromHistory = false) {
     const errorMessage = detailsContent.querySelector("#mvAudioError");
 
     const directAudioUrl = audioElement.dataset.downloadUrl || "";
+    const format = (audioElement.dataset.audioFormat || "").toLowerCase();
+    const mime = format.includes("m4a") || format.includes("mp4")
+      ? "audio/mp4"
+      : format.includes("mp3") || format.includes("mpeg")
+        ? "audio/mpeg"
+        : format.includes("wav")
+          ? "audio/wav"
+          : format.includes("flac")
+            ? "audio/flac"
+            : "";
+
+    const isNetlifyHost = location.hostname.endsWith(".netlify.app") ||
+      location.hostname === "netlify.app";
+    const proxyUrl = fileId
+      ? `/api/audio?fileId=${encodeURIComponent(fileId)}${mime ? `&mime=${encodeURIComponent(mime)}` : ""}`
+      : "";
+
     if (fileId && directAudioUrl) {
-      // Bypass Netlify proxy to test native playback from Google Drive directly.
-      audioElement.src = directAudioUrl;
+      // On Netlify, stream Drive bytes through the same-origin function so
+      // the site's native HTML audio player handles playback and seeking.
+      // GitHub Pages has no server functions, so it uses the direct Drive URL.
+      audioElement.src = isNetlifyHost && proxyUrl ? proxyUrl : directAudioUrl;
       audioElement.load();
     } else if (errorMessage) {
       errorMessage.hidden = false;
@@ -972,15 +991,14 @@ window.showDetails = function(id, fromHistory = false) {
       if (errorMessage) errorMessage.hidden = true;
     });
 
-    /* GitHub Pages cannot run the Netlify audio proxy. If Drive's download
-       endpoint is not browser-streamable, fall back to Drive's own preview
-       player, which uses the same playback path verified in Drive preview. */
     audioElement.addEventListener("error", () => {
       const previewUrl = getDrivePreviewUrl(
         audioElement.dataset.driveUrl || audioElement.dataset.downloadUrl
       );
 
-      if (previewUrl && !audioElement.dataset.previewFallback) {
+      // Keep a Drive embed only as a fallback on GitHub Pages. On Netlify,
+      // preserve the in-site player and show a useful error if proxy fails.
+      if (!isNetlifyHost && previewUrl && !audioElement.dataset.previewFallback) {
         audioElement.dataset.previewFallback = "true";
         audioElement.hidden = true;
 
@@ -997,15 +1015,16 @@ window.showDetails = function(id, fromHistory = false) {
         if (errorMessage) {
           errorMessage.hidden = false;
           errorMessage.firstChild.textContent =
-            "Google Drive-এর নিজস্ব প্লেয়ার ব্যবহার করা হচ্ছে। প্লে করতে নিচের প্লেয়ারের Play বাটনে চাপ দাও। ";
+            "এই হোস্টে সরাসরি অডিও স্ট্রিমিং সমর্থিত নয়। Google Drive-এর প্লেয়ার ব্যবহার করো। ";
         }
         return;
       }
 
       if (errorMessage) {
         errorMessage.hidden = false;
-        errorMessage.firstChild.textContent =
-          "অডিও লোড হয়নি। Google Drive-এ ফাইলটি খুলে শেয়ারিং পারমিশন পরীক্ষা করো। ";
+        errorMessage.firstChild.textContent = isNetlifyHost
+          ? "সাইটের Audio Proxy থেকে অডিও লোড হয়নি। কিছুক্ষণ পর আবার চেষ্টা করো। "
+          : "অডিও লোড হয়নি। Google Drive-এ ফাইলটির sharing permission পরীক্ষা করো। ";
       }
     }, { once: true });
   }
