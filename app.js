@@ -949,6 +949,7 @@ window.showDetails = function(id, fromHistory = false) {
   if (heroSection) heroSection.style.display = "none";
   if (librarySection) librarySection.style.display = "none";
   if (featuredSpotlight) featuredSpotlight.style.display = "none";
+  if (statisticsSection) statisticsSection.style.display = "none";
 
   detailsSection.scrollIntoView({ behavior: "smooth", block: "start" });
 };
@@ -977,6 +978,7 @@ function returnToLibrary() {
   if (heroSection) heroSection.style.display = "";
   if (librarySection) librarySection.style.display = "";
   if (featuredSpotlight) featuredSpotlight.style.display = "";
+  if (statisticsSection) statisticsSection.style.display = "";
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
