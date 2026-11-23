@@ -896,7 +896,8 @@ window.showDetails = function(id, fromHistory = false) {
               <div class="mv-audio-artist">${escapeHtml(x.artist || "Unknown Artist")}${x.album ? " · " + escapeHtml(x.album) : ""}</div>
               <audio id="mediaverseAudio" controls preload="metadata" playsinline
                 data-drive-url="${escapeHtml(x.audioDriveUrl)}"
-                data-download-url="${escapeHtml(x.audioUrl)}">
+                data-download-url="${escapeHtml(x.audioUrl)}"
+                data-audio-format="${escapeHtml(x.audioFormat || "")}">
                 Your browser does not support HTML audio.
               </audio>
               <div class="mv-audio-format">${escapeHtml(x.audioFormat || "Google Drive audio")} · Google Drive</div>
@@ -958,7 +959,10 @@ window.showDetails = function(id, fromHistory = false) {
     const errorMessage = detailsContent.querySelector("#mvAudioError");
 
     if (fileId) {
-      audioElement.src = `/api/audio?fileId=${encodeURIComponent(fileId)}`;
+      const format = (audioElement.dataset.audioFormat || "").toLowerCase();
+      const mimeByFormat = { m4a: "audio/mp4", mp4: "audio/mp4", mp3: "audio/mpeg", aac: "audio/aac", wav: "audio/wav", flac: "audio/flac", ogg: "audio/ogg", webm: "audio/webm" };
+      const mime = mimeByFormat[format] || "";
+      audioElement.src = `/api/audio?fileId=${encodeURIComponent(fileId)}${mime ? `&mime=${encodeURIComponent(mime)}` : ""}`;
       audioElement.load();
     } else if (errorMessage) {
       errorMessage.hidden = false;
