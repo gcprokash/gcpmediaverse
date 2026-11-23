@@ -107,6 +107,27 @@ function escapeJs(val) {
     .replace(/'/g, "\\'");
 }
 
+/* Build browser-playable Google Drive audio URL candidates.
+   Google Drive's preview URL is not an audio stream; try media/download
+   endpoints in sequence and fall back when the browser reports a media error. */
+function getDriveAudioSources(driveUrl, downloadUrl) {
+  const raw = [driveUrl, downloadUrl].filter(Boolean);
+  const ids = [];
+  raw.forEach(url => {
+    const match = String(url).match(/(?:\/d\/|[?&]id=)([a-zA-Z0-9_-]{10,})/);
+    if (match && !ids.includes(match[1])) ids.push(match[1]);
+  });
+
+  const candidates = [];
+  ids.forEach(id => {
+    candidates.push(`https://drive.google.com/uc?export=media&id=${encodeURIComponent(id)}`);
+    candidates.push(`https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`);
+    candidates.push(`https://drive.usercontent.google.com/download?id=${encodeURIComponent(id)}&export=download&confirm=t`);
+  });
+  raw.forEach(url => candidates.push(url));
+  return [...new Set(candidates)];
+}
+
 
 /* =========================================================
    4. GOOGLE DRIVE URL PARSERS
@@ -873,8 +894,9 @@ window.showDetails = function(id, fromHistory = false) {
               <div class="mv-audio-label">MEDIAVERSE AUDIO PLAYER</div>
               <div class="mv-audio-title">${escapeHtml(x.title || "Untitled")}</div>
               <div class="mv-audio-artist">${escapeHtml(x.artist || "Unknown Artist")}${x.album ? " · " + escapeHtml(x.album) : ""}</div>
-              <audio id="mediaverseAudio" controls preload="none" playsinline>
-                <source src="${escapeHtml(x.audioUrl)}">
+              <audio id="mediaverseAudio" controls preload="metadata" playsinline
+                data-drive-url="${escapeHtml(x.audioDriveUrl)}"
+                data-download-url="${escapeHtml(x.audioUrl)}">
                 Your browser does not support HTML audio.
               </audio>
               <div class="mv-audio-format">${escapeHtml(x.audioFormat || "Google Drive audio")} · Google Drive</div>
@@ -930,10 +952,31 @@ window.showDetails = function(id, fromHistory = false) {
 
   const audioElement = detailsContent.querySelector("#mediaverseAudio");
   if (audioElement) {
-    audioElement.addEventListener("error", () => {
-      const errorMessage = detailsContent.querySelector("#mvAudioError");
-      if (errorMessage) errorMessage.hidden = false;
-    }, { once: true });
+    const audioSources = getDriveAudioSources(
+      audioElement.dataset.driveUrl,
+      audioElement.dataset.downloadUrl
+    );
+    let sourceIndex = 0;
+    const errorMessage = detailsContent.querySelector("#mvAudioError");
+
+    const loadNextAudioSource = () => {
+      if (sourceIndex >= audioSources.length) {
+        if (errorMessage) {
+          errorMessage.hidden = false;
+          errorMessage.firstChild.textContent =
+            "Google Drive থেকে অডিও স্ট্রিম করা যায়নি। ফাইলটি Drive-এ চালানো যাচ্ছে, কিন্তু এই ব্রাউজারে সরাসরি স্ট্রিমিং সীমাবদ্ধ হতে পারে। ";
+        }
+        return;
+      }
+      audioElement.src = audioSources[sourceIndex++];
+      audioElement.load();
+    };
+
+    audioElement.addEventListener("error", loadNextAudioSource);
+    audioElement.addEventListener("loadedmetadata", () => {
+      if (errorMessage) errorMessage.hidden = true;
+    });
+    loadNextAudioSource();
   }
 
   const creditsText = detailsContent.querySelector(".detail-artist-credits .artist");
