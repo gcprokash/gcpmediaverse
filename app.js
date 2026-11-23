@@ -107,28 +107,6 @@ function escapeJs(val) {
     .replace(/'/g, "\\'");
 }
 
-/* Build browser-playable Google Drive audio URL candidates.
-   Google Drive's preview URL is not an audio stream; try media/download
-   endpoints in sequence and fall back when the browser reports a media error. */
-function getDriveAudioSources(driveUrl, downloadUrl) {
-  const raw = [driveUrl, downloadUrl].filter(Boolean);
-  const ids = [];
-  raw.forEach(url => {
-    const match = String(url).match(/(?:\/d\/|[?&]id=)([a-zA-Z0-9_-]{10,})/);
-    if (match && !ids.includes(match[1])) ids.push(match[1]);
-  });
-
-  const candidates = [];
-  ids.forEach(id => {
-    candidates.push(`https://drive.google.com/uc?export=media&id=${encodeURIComponent(id)}`);
-    candidates.push(`https://drive.google.com/uc?export=download&id=${encodeURIComponent(id)}`);
-    candidates.push(`https://drive.usercontent.google.com/download?id=${encodeURIComponent(id)}&export=download&confirm=t`);
-  });
-  raw.forEach(url => candidates.push(url));
-  return [...new Set(candidates)];
-}
-
-
 /* =========================================================
    4. GOOGLE DRIVE URL PARSERS
    ========================================================= */
@@ -448,7 +426,7 @@ function renderFeaturedSpotlight() {
             </a>
           ` : ""}
           ${latest.audioUrl ? `
-            <a class="download audio-download" href="${escapeHtml(latest.audioUrl)}" target="_blank" rel="noopener" download onclick="event.stopPropagation();">
+            <a class="download audio-download" href="${escapeHtml(getDrivePreviewUrl(latest.audioDriveUrl || latest.audioUrl))}" target="_blank" rel="noopener" download onclick="event.stopPropagation();">
               🎧 Hi-Res Audio
             </a>
           ` : ""}
@@ -498,9 +476,9 @@ function card(x) {
   ` : "";
 
   const audioButton = x.audioUrl ? `
-    <button type="button" class="download audio-download" onclick="event.stopPropagation(); showDetails('${escapeJs(x.id)}');">
+    <a class="download audio-download" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener" onclick="event.stopPropagation();">
       ▶ Play Audio
-    </button>
+    </a>
   ` : "";
 
   return `
@@ -884,26 +862,12 @@ window.showDetails = function(id, fromHistory = false) {
           <div class="artist" id="detailArtistCredits">${escapeHtml(x.artist || "Unknown Artist")}</div>
           <button type="button" class="credits-toggle" hidden aria-expanded="false" onclick="toggleArtistCredits(this)">Show All Credits</button>
         </div>
-
         ${x.audioUrl ? `
-          <section class="mv-audio-player" aria-label="Hi-Res audio player">
-            <div class="mv-audio-artwork">
-              ${urls.length ? `<img src="${escapeHtml(urls[0])}" alt="${escapeHtml(x.title)} album art" onerror="this.style.display='none';">` : `<span>MV</span>`}
-            </div>
-            <div class="mv-audio-main">
-              <div class="mv-audio-label">MEDIAVERSE AUDIO PLAYER</div>
-              <div class="mv-audio-title">${escapeHtml(x.title || "Untitled")}</div>
-              <div class="mv-audio-artist">${escapeHtml(x.artist || "Unknown Artist")}${x.album ? " · " + escapeHtml(x.album) : ""}</div>
-              <audio id="mediaverseAudio" controls preload="metadata" playsinline
-                data-drive-url="${escapeHtml(x.audioDriveUrl)}"
-                data-download-url="${escapeHtml(x.audioUrl)}"
-                data-audio-format="${escapeHtml(x.audioFormat || "")}">
-                Your browser does not support HTML audio.
-              </audio>
-              <div class="mv-audio-format">${escapeHtml(x.audioFormat || "Google Drive audio")} · Google Drive</div>
-              <p class="mv-audio-error" id="mvAudioError" hidden>অডিওটি সরাসরি চালানো যাচ্ছে না। Drive ফাইলের sharing permission এবং streaming support পরীক্ষা করো। <a href="${escapeHtml(x.audioDriveUrl || x.audioUrl)}" target="_blank" rel="noopener">Google Drive-এ খুলুন</a></p>
-            </div>
-          </section>
+          <div class="detail-audio-link">
+            <a class="audio-download-button" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener">
+              ▶ Play Audio on Google Drive
+            </a>
+          </div>
         ` : ""}
 
         <div id="mediaPlayer" hidden style="margin-top:20px; margin-bottom:20px;"></div>
@@ -944,90 +908,12 @@ window.showDetails = function(id, fromHistory = false) {
         <div class="detail-actions">
           ${x.videoUrl ? `<a href="#" class="play-button" onclick="event.preventDefault(); playMedia('${escapeJs(x.id)}');">▶ Play</a>` : ""}
           ${x.downloadUrl ? `<a class="download-button" href="${escapeHtml(x.downloadUrl)}" target="_blank" rel="noopener">↓ Video Download</a>` : ""}
-          ${x.audioUrl ? `<a class="audio-download-button" href="${escapeHtml(x.audioUrl)}" target="_blank" rel="noopener" download>🎧 Hi-Res Audio</a>` : ""}
+          ${x.audioUrl ? `<a class="audio-download-button" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener">▶ Play Audio on Google Drive</a>` : ""}
           <button type="button" class="copy-link-button" onclick="shareOrCopyMediaLink('${escapeJs(x.id)}', this)">🔗 Share / Link</button>
         </div>
       </div>
     </div>
   `;
-
-  const audioElement = detailsContent.querySelector("#mediaverseAudio");
-  if (audioElement) {
-    const fileId = getDriveFileId(
-      audioElement.dataset.driveUrl || audioElement.dataset.downloadUrl
-    );
-    const errorMessage = detailsContent.querySelector("#mvAudioError");
-
-    const directAudioUrl = audioElement.dataset.downloadUrl || "";
-    const format = (audioElement.dataset.audioFormat || "").toLowerCase();
-    const mime = format.includes("m4a") || format.includes("mp4")
-      ? "audio/mp4"
-      : format.includes("mp3") || format.includes("mpeg")
-        ? "audio/mpeg"
-        : format.includes("wav")
-          ? "audio/wav"
-          : format.includes("flac")
-            ? "audio/flac"
-            : "";
-
-    const isNetlifyHost = location.hostname.endsWith(".netlify.app") ||
-      location.hostname === "netlify.app";
-    const proxyUrl = fileId
-      ? `/api/audio?fileId=${encodeURIComponent(fileId)}${mime ? `&mime=${encodeURIComponent(mime)}` : ""}`
-      : "";
-
-    if (fileId && directAudioUrl) {
-      // On Netlify, stream Drive bytes through the same-origin function so
-      // the site's native HTML audio player handles playback and seeking.
-      // GitHub Pages has no server functions, so it uses the direct Drive URL.
-      audioElement.src = isNetlifyHost && proxyUrl ? proxyUrl : directAudioUrl;
-      audioElement.load();
-    } else if (errorMessage) {
-      errorMessage.hidden = false;
-      errorMessage.firstChild.textContent = "Google Drive ফাইলের ID পাওয়া যায়নি। ";
-    }
-
-    audioElement.addEventListener("loadedmetadata", () => {
-      if (errorMessage) errorMessage.hidden = true;
-    });
-
-    audioElement.addEventListener("error", () => {
-      const previewUrl = getDrivePreviewUrl(
-        audioElement.dataset.driveUrl || audioElement.dataset.downloadUrl
-      );
-
-      // Keep a Drive embed only as a fallback on GitHub Pages. On Netlify,
-      // preserve the in-site player and show a useful error if proxy fails.
-      if (!isNetlifyHost && previewUrl && !audioElement.dataset.previewFallback) {
-        audioElement.dataset.previewFallback = "true";
-        audioElement.hidden = true;
-
-        const frame = document.createElement("iframe");
-        frame.className = "mv-audio-drive-embed";
-        frame.title = "Play audio with Google Drive";
-        frame.src = previewUrl;
-        frame.allow = "autoplay";
-        frame.referrerPolicy = "strict-origin-when-cross-origin";
-        frame.loading = "lazy";
-        frame.style.cssText = "display:block;width:100%;height:84px;border:0;border-radius:12px;background:#202124;";
-        audioElement.insertAdjacentElement("afterend", frame);
-
-        if (errorMessage) {
-          errorMessage.hidden = false;
-          errorMessage.firstChild.textContent =
-            "এই হোস্টে সরাসরি অডিও স্ট্রিমিং সমর্থিত নয়। Google Drive-এর প্লেয়ার ব্যবহার করো। ";
-        }
-        return;
-      }
-
-      if (errorMessage) {
-        errorMessage.hidden = false;
-        errorMessage.firstChild.textContent = isNetlifyHost
-          ? "সাইটের Audio Proxy থেকে অডিও লোড হয়নি। কিছুক্ষণ পর আবার চেষ্টা করো। "
-          : "অডিও লোড হয়নি। Google Drive-এ ফাইলটির sharing permission পরীক্ষা করো। ";
-      }
-    }, { once: true });
-  }
 
   const creditsText = detailsContent.querySelector(".detail-artist-credits .artist");
   const creditsToggle = detailsContent.querySelector(".detail-artist-credits .credits-toggle");
