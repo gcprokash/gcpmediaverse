@@ -829,10 +829,8 @@ window.showDetails = function(id, fromHistory = false) {
   ` : `<div class="cover-placeholder"><span>MV</span></div>`;
 
   detailsContent.innerHTML = `
-    <div class="detail">
-      <div class="detail-cover">${cover}</div>
-
-      <div class="detail-content">
+    <div class="detail detail-layout-two">
+      <header class="detail-heading">
         <p class="eyebrow">MEDIA DETAILS</p>
         <h2>${escapeHtml(x.title || "Untitled")}</h2>
         <div class="artist-credits detail-artist-credits">
@@ -840,47 +838,50 @@ window.showDetails = function(id, fromHistory = false) {
           <button type="button" class="credits-toggle" hidden aria-expanded="false" onclick="toggleArtistCredits(this)">Show All Credits</button>
         </div>
         <div id="mediaPlayer" hidden style="margin-top:20px; margin-bottom:20px;"></div>
+      </header>
 
+      <div class="detail-main">
+        <div class="detail-cover">${cover}</div>
+        <section class="metadata-group detail-general" aria-label="General information">
+          <h3 class="metadata-heading">General Information</h3>
+          <div class="info-grid">
+            <div class="info"><small>Album</small><b>${escapeHtml(x.album || "—")}</b></div>
+            <div class="info"><small>Composer</small><b>${escapeHtml(x.composer || "—")}</b></div>
+            <div class="info"><small>Genre</small><b>${escapeHtml(x.genre || "—")}</b></div>
+            <div class="info"><small>Language</small><b>${escapeHtml(x.language || "—")}</b></div>
+          </div>
+        </section>
+      </div>
 
-        <div class="detail-metadata">
-          <section class="metadata-group" aria-label="General information">
-            <h3 class="metadata-heading">General Information</h3>
-            <div class="info-grid">
-              <div class="info"><small>Album</small><b>${escapeHtml(x.album || "—")}</b></div>
-              <div class="info"><small>Composer</small><b>${escapeHtml(x.composer || "—")}</b></div>
-              <div class="info"><small>Genre</small><b>${escapeHtml(x.genre || "—")}</b></div>
-              <div class="info"><small>Language</small><b>${escapeHtml(x.language || "—")}</b></div>
-            </div>
-          </section>
-          <section class="metadata-group" aria-label="Technical information">
-            <h3 class="metadata-heading">Technical Information</h3>
-            <div class="info-grid">
-              <div class="info"><small>Resolution</small><b>${escapeHtml(x.resolution || "—")}</b></div>
-              <div class="info"><small>Video Codec</small><b>${escapeHtml(x.videoCodec || "—")}</b></div>
-              <div class="info"><small>Quality</small><b>${escapeHtml(x.videoQuality || "—")}</b></div>
-              <div class="info"><small>Audio</small><b>${x.audioCount} tracks</b></div>
-              <div class="info"><small>Hi-Res Audio</small><b>${x.audioUrl ? escapeHtml(x.audioFormat || "Available") : (x.embeddedHiRes ? escapeHtml(x.embeddedHiResInfo || "Embedded Hi-Res") : "Not available")}</b></div>
-              <div class="info"><small>Subtitles</small><b>${x.subtitleCount}</b></div>
-            </div>
-          </section>
-          <section class="metadata-group" aria-label="File information">
-            <h3 class="metadata-heading">File Information</h3>
-            <div class="info-grid">
-              <div class="info"><small>Media ID</small><b>${escapeHtml(x.id)}</b></div>
-              <div class="info"><small>File Name</small><b>${escapeHtml(x.fileName || "—")}</b></div>
-              <div class="info"><small>Cover</small><b>${urls.length ? "Available" : "Not available"}</b></div>
-              ${x.audioFileName ? `<div class="info"><small>Hi-Res File</small><b>${escapeHtml(x.audioFileName)}</b></div>` : ""}
-            </div>
-          </section>
-        </div>
+      <div class="detail-lower">
+        <section class="metadata-group" aria-label="Technical information">
+          <h3 class="metadata-heading">Technical Information</h3>
+          <div class="info-grid">
+            <div class="info"><small>Resolution</small><b>${escapeHtml(x.resolution || "—")}</b></div>
+            <div class="info"><small>Video Codec</small><b>${escapeHtml(x.videoCodec || "—")}</b></div>
+            <div class="info"><small>Quality</small><b>${escapeHtml(x.videoQuality || "—")}</b></div>
+            <div class="info"><small>Audio</small><b>${x.audioCount} tracks</b></div>
+            <div class="info"><small>Hi-Res Audio</small><b>${x.audioUrl ? escapeHtml(x.audioFormat || "Available") : (x.embeddedHiRes ? escapeHtml(x.embeddedHiResInfo || "Embedded Hi-Res") : "Not available")}</b></div>
+            <div class="info"><small>Subtitles</small><b>${x.subtitleCount}</b></div>
+          </div>
+        </section>
+        <section class="metadata-group" aria-label="File information">
+          <h3 class="metadata-heading">File Information</h3>
+          <div class="info-grid">
+            <div class="info"><small>Media ID</small><b>${escapeHtml(x.id)}</b></div>
+            <div class="info"><small>File Name</small><b>${escapeHtml(x.fileName || "—")}</b></div>
+            <div class="info"><small>Cover</small><b>${urls.length ? "Available" : "Not available"}</b></div>
+            ${x.audioFileName ? `<div class="info"><small>Hi-Res File</small><b>${escapeHtml(x.audioFileName)}</b></div>` : ""}
+          </div>
+        </section>
+      </div>
 
-        <div class="detail-actions">
-          ${x.videoUrl ? `<a href="#" class="play-button" onclick="event.preventDefault(); playMedia('${escapeJs(x.id)}');">▶ Play</a>` : ""}
-          ${x.downloadUrl ? `<a class="download-button" href="${escapeHtml(x.downloadUrl)}" target="_blank" rel="noopener">↓ Video Download</a>` : ""}
-          ${x.audioUrl ? `<a class="audio-download-button" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener">▶ Play Audio on Google Drive</a>` : ""}
-          ${x.audioUrl ? `<a class="download-button" href="${escapeHtml(x.audioUrl)}" target="_blank" rel="noopener">↓ Hi-Res Download</a>` : ""}
-          <button type="button" class="copy-link-button" onclick="shareOrCopyMediaLink('${escapeJs(x.id)}', this)">🔗 Share / Link</button>
-        </div>
+      <div class="detail-actions">
+        ${x.videoUrl ? `<a href="#" class="play-button" onclick="event.preventDefault(); playMedia('${escapeJs(x.id)}');">▶ Play</a>` : ""}
+        ${x.downloadUrl ? `<a class="download-button" href="${escapeHtml(x.downloadUrl)}" target="_blank" rel="noopener">↓ Video Download</a>` : ""}
+        ${x.audioUrl ? `<a class="audio-download-button" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener">▶ Play Audio on Google Drive</a>` : ""}
+        ${x.audioUrl ? `<a class="download-button" href="${escapeHtml(x.audioUrl)}" target="_blank" rel="noopener">↓ Hi-Res Download</a>` : ""}
+        <button type="button" class="copy-link-button" onclick="shareOrCopyMediaLink('${escapeJs(x.id)}', this)">🔗 Share / Link</button>
       </div>
     </div>
   `;
