@@ -958,11 +958,10 @@ window.showDetails = function(id, fromHistory = false) {
     );
     const errorMessage = detailsContent.querySelector("#mvAudioError");
 
-    if (fileId) {
-      const format = (audioElement.dataset.audioFormat || "").toLowerCase();
-      const mimeByFormat = { m4a: "audio/mp4", mp4: "audio/mp4", mp3: "audio/mpeg", aac: "audio/aac", wav: "audio/wav", flac: "audio/flac", ogg: "audio/ogg", webm: "audio/webm" };
-      const mime = mimeByFormat[format] || "";
-      audioElement.src = `/api/audio?fileId=${encodeURIComponent(fileId)}${mime ? `&mime=${encodeURIComponent(mime)}` : ""}`;
+    const directAudioUrl = audioElement.dataset.downloadUrl || "";
+    if (fileId && directAudioUrl) {
+      // Bypass Netlify proxy to test native playback from Google Drive directly.
+      audioElement.src = directAudioUrl;
       audioElement.load();
     } else if (errorMessage) {
       errorMessage.hidden = false;
