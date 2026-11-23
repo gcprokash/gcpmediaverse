@@ -1561,3 +1561,138 @@ footer {
   }
 }
 
+
+
+/* Details Page Layout 2: centered title/artist, split cover + general info */
+.detail.detail-layout-two {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  gap: 28px;
+}
+
+.detail-layout-two .detail-heading {
+  width: 100%;
+  text-align: center;
+  min-width: 0;
+}
+
+.detail-layout-two .detail-heading .eyebrow {
+  margin-bottom: 10px;
+}
+
+.detail-layout-two .detail-heading h2 {
+  margin: 0 auto 8px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.detail-layout-two .detail-artist-credits {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.detail-layout-two .detail-artist-credits .artist {
+  text-align: center;
+}
+
+.detail-layout-two .detail-main {
+  display: grid;
+  grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(24px, 4vw, 48px);
+  width: 100%;
+}
+
+.detail-layout-two .detail-main .detail-cover {
+  width: 100%;
+  max-width: 380px;
+}
+
+.detail-layout-two .detail-general {
+  min-width: 0;
+}
+
+.detail-layout-two .detail-general .info-grid {
+  margin-top: 12px;
+}
+
+.detail-layout-two .detail-lower {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.detail-layout-two .detail-lower .info-grid {
+  margin-top: 12px;
+}
+
+.detail-layout-two .detail-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: 12px;
+}
+
+.detail-layout-two .detail-actions a,
+.detail-layout-two .detail-actions button {
+  width: 100%;
+  min-width: 0;
+  min-height: 50px;
+  padding: 12px 14px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.detail-layout-two .detail-actions .copy-link-button {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .detail.detail-layout-two {
+    gap: 22px;
+  }
+
+  .detail-layout-two .detail-main {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .detail-layout-two .detail-main .detail-cover {
+    width: 100%;
+    max-width: 380px;
+    justify-self: center;
+  }
+
+  .detail-layout-two .detail-lower {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .detail-layout-two .detail-heading h2 {
+    font-size: 26px;
+  }
+
+  .detail-layout-two .detail-artist-credits .artist {
+    font-size: 13px;
+  }
+
+  .detail-layout-two .detail-main .info-grid,
+  .detail-layout-two .detail-lower .info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detail-layout-two .detail-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail-layout-two .detail-actions .copy-link-button {
+    grid-column: auto;
+  }
+}
