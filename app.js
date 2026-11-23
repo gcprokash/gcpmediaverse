@@ -50,7 +50,6 @@ const closeDetailsBtn = document.getElementById("closeDetails");
 const heroSection = document.querySelector(".hero");
 const featuredSpotlight = document.getElementById("featuredSpotlight");
 const statisticsSection = document.getElementById("statisticsSection");
-const artistsSection = document.getElementById("artistsSection");
 const artistFilter = document.getElementById("artistFilter");
 const genreFilter = document.getElementById("genreFilter");
 const languageFilter = document.getElementById("languageFilter");
@@ -308,7 +307,6 @@ async function loadAllData() {
 
     renderFeaturedSpotlight();
     renderStatistics();
-    renderArtists();
     populateAdvancedFilters();
     render();
 
@@ -564,19 +562,6 @@ function renderStatistics() {
     <div class="section-head"><div><p class="eyebrow">THE ARCHIVE AT A GLANCE</p><h2>MediaVerse Insights</h2></div></div>
     <div class="stats-grid">${stats.map(([label, count, note]) => `
       <article class="stat-card"><span>${escapeHtml(label)}</span><strong>${count.toLocaleString()}</strong><small>${escapeHtml(note)}</small></article>
-    `).join("")}</div>`;
-}
-
-function renderArtists() {
-  if (!artistsSection) return;
-  const counts = new Map();
-  MEDIA.forEach(item => String(item.artist || "").split(/[,;&]/).map(v => v.trim()).filter(Boolean)
-    .forEach(name => counts.set(name, (counts.get(name) || 0) + 1)));
-  const artists = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
-  artistsSection.innerHTML = `
-    <div class="section-head"><div><p class="eyebrow">MEET THE CREATORS</p><h2>Artists</h2></div><span class="section-note">Explore the archive by artist</span></div>
-    <div class="artist-grid">${artists.map(([name, count]) => `
-      <button class="artist-tile" type="button" data-artist="${escapeHtml(name)}"><span class="artist-avatar">${escapeHtml(name.slice(0,1).toUpperCase())}</span><b>${escapeHtml(name)}</b><small>${count} ${count === 1 ? "title" : "titles"}</small></button>
     `).join("")}</div>`;
 }
 
@@ -1095,17 +1080,6 @@ if (searchBtn && search) {
   if (!control) return;
   control.addEventListener("change", () => { currentPage = 1; render(); });
 });
-
-if (artistsSection) {
-  artistsSection.addEventListener("click", event => {
-    const tile = event.target.closest("[data-artist]");
-    if (!tile || !artistFilter) return;
-    artistFilter.value = tile.dataset.artist;
-    currentPage = 1;
-    render();
-    librarySection.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-}
 
 /* ডিটেইলস থেকে লাইব্রেরিতে ফেরার নির্ভরযোগ্য নেভিগেশন */
 function navigateBackToLibrary() {
