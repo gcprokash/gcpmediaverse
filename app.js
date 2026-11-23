@@ -472,12 +472,6 @@ function card(x) {
     </a>
   ` : "";
 
-  const audioButton = x.audioUrl ? `
-    <a class="download audio-download" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener" onclick="event.stopPropagation();">
-      ▶ Play Audio
-    </a>
-  ` : "";
-
   return `
     <article class="card" data-id="${escapeHtml(x.id)}" tabindex="0" role="button" aria-label="View ${escapeHtml(x.title)}"
       onclick="if (!event.target.closest('.actions')) { showDetails('${escapeJs(x.id)}'); }"
@@ -521,7 +515,6 @@ function card(x) {
             </button>
           ` : ""}
           ${videoButton}
-          ${audioButton}
         </div>
       </div>
     </article>
