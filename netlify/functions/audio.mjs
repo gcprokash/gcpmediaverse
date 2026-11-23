@@ -25,6 +25,9 @@ function audioResponseError(message, status = 502) {
 export default async (request) => {
   const url = new URL(request.url);
   const fileId = url.searchParams.get("fileId") || "";
+  const requestedMime = (url.searchParams.get("mime") || "").toLowerCase();
+  const allowedMimes = new Set(["audio/mp4", "audio/mpeg", "audio/aac", "audio/wav", "audio/flac", "audio/ogg", "audio/webm"]);
+  const forcedMime = allowedMimes.has(requestedMime) ? requestedMime : "";
 
   if (!FILE_ID_PATTERN.test(fileId)) {
     return audioResponseError("A valid Google Drive fileId is required.", 400);
@@ -86,8 +89,10 @@ export default async (request) => {
 
   const upstreamRange = upstream.headers.get("content-range");
   const contentLength = upstream.headers.get("content-length");
+  const upstreamType = (upstream.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+  const responseMime = forcedMime || (upstreamType === "application/mp4" || upstreamType === "video/mp4" ? "audio/mp4" : upstreamType.startsWith("audio/") ? upstreamType : "application/octet-stream");
   const headers = new Headers({
-    "content-type": upstream.headers.get("content-type") || "application/octet-stream",
+    "content-type": responseMime,
     "content-disposition": "inline",
     "accept-ranges": "bytes",
     "cache-control": "private, max-age=300",
