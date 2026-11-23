@@ -847,14 +847,6 @@ window.showDetails = function(id, fromHistory = false) {
           <div class="artist" id="detailArtistCredits">${escapeHtml(x.artist || "Unknown Artist")}</div>
           <button type="button" class="credits-toggle" hidden aria-expanded="false" onclick="toggleArtistCredits(this)">Show All Credits</button>
         </div>
-        ${x.audioUrl ? `
-          <div class="detail-audio-link">
-            <a class="audio-download-button" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener">
-              ▶ Play Audio on Google Drive
-            </a>
-          </div>
-        ` : ""}
-
         <div id="mediaPlayer" hidden style="margin-top:20px; margin-bottom:20px;"></div>
 
 
@@ -894,6 +886,7 @@ window.showDetails = function(id, fromHistory = false) {
           ${x.videoUrl ? `<a href="#" class="play-button" onclick="event.preventDefault(); playMedia('${escapeJs(x.id)}');">▶ Play</a>` : ""}
           ${x.downloadUrl ? `<a class="download-button" href="${escapeHtml(x.downloadUrl)}" target="_blank" rel="noopener">↓ Video Download</a>` : ""}
           ${x.audioUrl ? `<a class="audio-download-button" href="${escapeHtml(getDrivePreviewUrl(x.audioDriveUrl || x.audioUrl))}" target="_blank" rel="noopener">▶ Play Audio on Google Drive</a>` : ""}
+          ${x.audioUrl ? `<a class="download-button" href="${escapeHtml(x.audioUrl)}" target="_blank" rel="noopener">↓ Hi-Res Download</a>` : ""}
           <button type="button" class="copy-link-button" onclick="shareOrCopyMediaLink('${escapeJs(x.id)}', this)">🔗 Share / Link</button>
         </div>
       </div>
