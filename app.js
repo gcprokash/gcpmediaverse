@@ -477,9 +477,9 @@ function card(x) {
   ` : "";
 
   const audioButton = x.audioUrl ? `
-    <a class="download audio-download" href="${escapeHtml(x.audioUrl)}" target="_blank" rel="noopener" download onclick="event.stopPropagation();">
-      🎧 Audio
-    </a>
+    <button type="button" class="download audio-download" onclick="event.stopPropagation(); showDetails('${escapeJs(x.id)}');">
+      ▶ Play Audio
+    </button>
   ` : "";
 
   return `
@@ -864,6 +864,25 @@ window.showDetails = function(id, fromHistory = false) {
           <button type="button" class="credits-toggle" hidden aria-expanded="false" onclick="toggleArtistCredits(this)">Show All Credits</button>
         </div>
 
+        ${x.audioUrl ? `
+          <section class="mv-audio-player" aria-label="Hi-Res audio player">
+            <div class="mv-audio-artwork">
+              ${urls.length ? `<img src="${escapeHtml(urls[0])}" alt="${escapeHtml(x.title)} album art" onerror="this.style.display='none';">` : `<span>MV</span>`}
+            </div>
+            <div class="mv-audio-main">
+              <div class="mv-audio-label">MEDIAVERSE AUDIO PLAYER</div>
+              <div class="mv-audio-title">${escapeHtml(x.title || "Untitled")}</div>
+              <div class="mv-audio-artist">${escapeHtml(x.artist || "Unknown Artist")}${x.album ? " · " + escapeHtml(x.album) : ""}</div>
+              <audio id="mediaverseAudio" controls preload="none" playsinline>
+                <source src="${escapeHtml(x.audioUrl)}">
+                Your browser does not support HTML audio.
+              </audio>
+              <div class="mv-audio-format">${escapeHtml(x.audioFormat || "Google Drive audio")} · Google Drive</div>
+              <p class="mv-audio-error" id="mvAudioError" hidden>অডিওটি সরাসরি চালানো যাচ্ছে না। Drive ফাইলের sharing permission এবং streaming support পরীক্ষা করো। <a href="${escapeHtml(x.audioDriveUrl || x.audioUrl)}" target="_blank" rel="noopener">Google Drive-এ খুলুন</a></p>
+            </div>
+          </section>
+        ` : ""}
+
         <div id="mediaPlayer" hidden style="margin-top:20px; margin-bottom:20px;"></div>
 
 
@@ -908,6 +927,14 @@ window.showDetails = function(id, fromHistory = false) {
       </div>
     </div>
   `;
+
+  const audioElement = detailsContent.querySelector("#mediaverseAudio");
+  if (audioElement) {
+    audioElement.addEventListener("error", () => {
+      const errorMessage = detailsContent.querySelector("#mvAudioError");
+      if (errorMessage) errorMessage.hidden = false;
+    }, { once: true });
+  }
 
   const creditsText = detailsContent.querySelector(".detail-artist-credits .artist");
   const creditsToggle = detailsContent.querySelector(".detail-artist-credits .credits-toggle");
