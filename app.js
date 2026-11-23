@@ -46,7 +46,6 @@ const empty = document.getElementById("emptyState");
 const search = document.getElementById("searchInput");
 const searchBtn = document.getElementById("searchBtn");
 const paginationContainer = document.getElementById("paginationContainer");
-const closeDetailsBtn = document.getElementById("closeDetails");
 const heroSection = document.querySelector(".hero");
 const featuredSpotlight = document.getElementById("featuredSpotlight");
 const statisticsSection = document.getElementById("statisticsSection");
@@ -1087,10 +1086,6 @@ function navigateBackToLibrary() {
     history.replaceState(history.state, "", location.pathname + location.search);
   }
   returnToLibrary();
-}
-
-if (closeDetailsBtn) {
-  closeDetailsBtn.addEventListener("click", navigateBackToLibrary);
 }
 
 /* অ্যান্ড্রয়েড/ব্রাউজার ব্যাক ও ফরোয়ার্ড বাটন হ্যান্ডলার */

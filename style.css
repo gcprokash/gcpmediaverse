@@ -692,29 +692,13 @@ h2 {
    ========================================================= */
 
 .details-section {
-  padding: 35px 5% 60px;
+  padding: 20px 5% 60px;
   border-top: 1px solid var(--line);
   background: radial-gradient(
     circle at 20% 0%,
     rgba(21, 149, 255, 0.08),
     transparent 45%
   );
-}
-
-.close-btn {
-  background: transparent;
-  color: #b9d2e9;
-  border: 1px solid var(--line);
-  padding: 9px 13px;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-bottom: 20px;
-  transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-  background: #102438;
-  color: #ffffff;
 }
 
 .detail {
