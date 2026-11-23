@@ -1696,3 +1696,30 @@ footer {
     grid-column: auto;
   }
 }
+
+
+/* Keep General and Technical Information together in the right-hand column */
+.detail-layout-two .detail-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.detail-layout-two .detail-side-column .metadata-group {
+  min-width: 0;
+}
+
+.detail-layout-two .detail-side-column .info-grid {
+  margin-top: 12px;
+}
+
+.detail-layout-two .detail-lower {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 768px) {
+  .detail-layout-two .detail-side-column {
+    gap: 18px;
+  }
+}

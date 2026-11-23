@@ -842,29 +842,31 @@ window.showDetails = function(id, fromHistory = false) {
 
       <div class="detail-main">
         <div class="detail-cover">${cover}</div>
-        <section class="metadata-group detail-general" aria-label="General information">
-          <h3 class="metadata-heading">General Information</h3>
-          <div class="info-grid">
-            <div class="info"><small>Album</small><b>${escapeHtml(x.album || "—")}</b></div>
-            <div class="info"><small>Composer</small><b>${escapeHtml(x.composer || "—")}</b></div>
-            <div class="info"><small>Genre</small><b>${escapeHtml(x.genre || "—")}</b></div>
-            <div class="info"><small>Language</small><b>${escapeHtml(x.language || "—")}</b></div>
-          </div>
-        </section>
+        <div class="detail-side-column">
+          <section class="metadata-group detail-general" aria-label="General information">
+            <h3 class="metadata-heading">General Information</h3>
+            <div class="info-grid">
+              <div class="info"><small>Album</small><b>${escapeHtml(x.album || "—")}</b></div>
+              <div class="info"><small>Composer</small><b>${escapeHtml(x.composer || "—")}</b></div>
+              <div class="info"><small>Genre</small><b>${escapeHtml(x.genre || "—")}</b></div>
+              <div class="info"><small>Language</small><b>${escapeHtml(x.language || "—")}</b></div>
+            </div>
+          </section>
+          <section class="metadata-group detail-technical" aria-label="Technical information">
+            <h3 class="metadata-heading">Technical Information</h3>
+            <div class="info-grid">
+              <div class="info"><small>Resolution</small><b>${escapeHtml(x.resolution || "—")}</b></div>
+              <div class="info"><small>Video Codec</small><b>${escapeHtml(x.videoCodec || "—")}</b></div>
+              <div class="info"><small>Quality</small><b>${escapeHtml(x.videoQuality || "—")}</b></div>
+              <div class="info"><small>Audio</small><b>${x.audioCount} tracks</b></div>
+              <div class="info"><small>Hi-Res Audio</small><b>${x.audioUrl ? escapeHtml(x.audioFormat || "Available") : (x.embeddedHiRes ? escapeHtml(x.embeddedHiResInfo || "Embedded Hi-Res") : "Not available")}</b></div>
+              <div class="info"><small>Subtitles</small><b>${x.subtitleCount}</b></div>
+            </div>
+          </section>
+        </div>
       </div>
 
       <div class="detail-lower">
-        <section class="metadata-group" aria-label="Technical information">
-          <h3 class="metadata-heading">Technical Information</h3>
-          <div class="info-grid">
-            <div class="info"><small>Resolution</small><b>${escapeHtml(x.resolution || "—")}</b></div>
-            <div class="info"><small>Video Codec</small><b>${escapeHtml(x.videoCodec || "—")}</b></div>
-            <div class="info"><small>Quality</small><b>${escapeHtml(x.videoQuality || "—")}</b></div>
-            <div class="info"><small>Audio</small><b>${x.audioCount} tracks</b></div>
-            <div class="info"><small>Hi-Res Audio</small><b>${x.audioUrl ? escapeHtml(x.audioFormat || "Available") : (x.embeddedHiRes ? escapeHtml(x.embeddedHiResInfo || "Embedded Hi-Res") : "Not available")}</b></div>
-            <div class="info"><small>Subtitles</small><b>${x.subtitleCount}</b></div>
-          </div>
-        </section>
         <section class="metadata-group" aria-label="File information">
           <h3 class="metadata-heading">File Information</h3>
           <div class="info-grid">
