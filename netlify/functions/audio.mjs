@@ -3,7 +3,7 @@ const FILE_ID_PATTERN = /^[a-zA-Z0-9_-]{10,200}$/;
 
 function parseRange(value) {
   if (!value) return { start: 0, end: MAX_CHUNK_BYTES - 1, supplied: false };
-  const match = /^bytes=(\\d+)-(\\d*)$/.exec(value.trim());
+  const match = /^bytes=(\d+)-(\d*)$/.exec(value.trim());
   if (!match) return null;
   const start = Number(match[1]);
   const requestedEnd = match[2] ? Number(match[2]) : start + MAX_CHUNK_BYTES - 1;
