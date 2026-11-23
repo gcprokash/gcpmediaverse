@@ -971,11 +971,41 @@ window.showDetails = function(id, fromHistory = false) {
     audioElement.addEventListener("loadedmetadata", () => {
       if (errorMessage) errorMessage.hidden = true;
     });
+
+    /* GitHub Pages cannot run the Netlify audio proxy. If Drive's download
+       endpoint is not browser-streamable, fall back to Drive's own preview
+       player, which uses the same playback path verified in Drive preview. */
     audioElement.addEventListener("error", () => {
+      const previewUrl = getDrivePreviewUrl(
+        audioElement.dataset.driveUrl || audioElement.dataset.downloadUrl
+      );
+
+      if (previewUrl && !audioElement.dataset.previewFallback) {
+        audioElement.dataset.previewFallback = "true";
+        audioElement.hidden = true;
+
+        const frame = document.createElement("iframe");
+        frame.className = "mv-audio-drive-embed";
+        frame.title = "Play audio with Google Drive";
+        frame.src = previewUrl;
+        frame.allow = "autoplay";
+        frame.referrerPolicy = "strict-origin-when-cross-origin";
+        frame.loading = "lazy";
+        frame.style.cssText = "display:block;width:100%;height:84px;border:0;border-radius:12px;background:#202124;";
+        audioElement.insertAdjacentElement("afterend", frame);
+
+        if (errorMessage) {
+          errorMessage.hidden = false;
+          errorMessage.firstChild.textContent =
+            "Google Drive-এর নিজস্ব প্লেয়ার ব্যবহার করা হচ্ছে। প্লে করতে নিচের প্লেয়ারের Play বাটনে চাপ দাও। ";
+        }
+        return;
+      }
+
       if (errorMessage) {
         errorMessage.hidden = false;
         errorMessage.firstChild.textContent =
-          "MediaVerse-এর Audio Proxy থেকে অডিও লোড হয়নি। Drive ফাইলের sharing permission ও Proxy response পরীক্ষা করতে হবে। ";
+          "অডিও লোড হয়নি। Google Drive-এ ফাইলটি খুলে শেয়ারিং পারমিশন পরীক্ষা করো। ";
       }
     }, { once: true });
   }
