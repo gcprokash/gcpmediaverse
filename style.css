@@ -1529,16 +1529,3 @@ footer {
   }
 }
 
-
-
-@media (max-width: 600px) {
-  .mv-audio-player {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-    padding: 14px;
-  }
-  .mv-audio-artwork {
-    width: min(100%, 230px);
-    justify-self: center;
-  }
-}
